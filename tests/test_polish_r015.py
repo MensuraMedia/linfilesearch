@@ -66,6 +66,19 @@ def test_results_column_order(tmp_path):
     assert titles == ['Modified', 'Name', 'Path', 'Size', 'Type', 'Mount']
 
 
+def test_all_pages_share_margins(tmp_path):
+    window = _build_window(tmp_path)
+    for name in ('SearchPage', 'HistoryPage', 'SavedPage', 'AboutPage',
+                 'SettingsPage'):
+        pages = _find(window.content_area, name)
+        assert pages, f'{name} not built'
+        page = pages[0]
+        assert page.get_margin_start() == 24, name
+        assert page.get_margin_end() == 24, name
+        assert page.get_margin_top() == 24, name
+        assert page.get_margin_bottom() == 24, name
+
+
 def test_results_context_menu(tmp_path):
     from modules.manager_mounts import MountManager
     from modules.manager_history import HistoryManager

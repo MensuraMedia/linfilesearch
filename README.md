@@ -39,8 +39,8 @@ a `linfilesearch` command in `~/.local/bin`, and a menu entry with correct
 taskbar/ALT+TAB grouping:
 
 ```bash
-bash ~/projects/Zai-ZCode/s014_install_linfilesearch.sh            # install
-bash ~/projects/Zai-ZCode/s014_install_linfilesearch.sh --uninstall
+./install.sh                # install
+./install.sh --uninstall    # remove
 ```
 
 After installing, start the app from the application menu or by running

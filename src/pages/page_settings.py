@@ -21,7 +21,8 @@ class SettingsPage(BasePage):
         """Initialize settings page"""
         self.theme_applicator = ThemeApplicator()
         self.current_theme_id = 'default'
-        super().__init__()
+        # margins consistent with the other pages (operator rule r022)
+        super().__init__(spacing=12, margin=24)
     
     def build_content(self):
         """Build settings page content"""

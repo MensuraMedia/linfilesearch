@@ -64,7 +64,9 @@ class Sidebar(Gtk.Box):
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
         wordmark.set_xalign(0.5)
-        logo_box.pack_end(wordmark, False, False, 8)
+        # wordmark anchored low but nudged up to center it in the gap
+        # between the mark and the first nav button (r022)
+        logo_box.pack_end(wordmark, False, False, 14)
 
         self.pack_start(logo_box, False, False, 0)
     
