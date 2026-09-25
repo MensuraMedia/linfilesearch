@@ -18,6 +18,11 @@ from config.config_search import (
     ICONS, MODE_SUBSTRING, MODE_WILDCARD, MODE_REGEX, DEFAULTS,
     file_type_info, TEXT_EXTS)
 from utils.icon_loader import get_icon, get_image, MOUNT_TINT, ACCENT_TINT
+from config.config_layout import Layout
+
+BUTTON_ICON_SIZE = Layout.dimensions.MAIN_BUTTON_ICON_SIZE
+BUTTON_MAX_H = Layout.dimensions.MAIN_BUTTON_MAX_HEIGHT
+BUTTON_MAX_W = Layout.dimensions.MAIN_BUTTON_MAX_WIDTH
 
 
 def human_size(n):
@@ -80,7 +85,7 @@ class SearchPage(BasePage):
                 'case': 'Match case', 'wildcard': 'Wildcard mode (* ? [ ])',
                 'regex': 'Regular expression mode'}[key])
             box = Gtk.Box(spacing=6)
-            box.pack_start(get_image(ICONS[key], 15), False, False, 0)
+            box.pack_start(get_image(ICONS[key], BUTTON_ICON_SIZE), False, False, 0)
             box.pack_start(Gtk.Label(label=label), False, False, 0)
             btn.add(box)
             btn.get_style_context().add_class('mode-toggle')
@@ -95,7 +100,7 @@ class SearchPage(BasePage):
         search_button = Gtk.Button()
         search_button.set_tooltip_text('Run search')
         b = Gtk.Box(spacing=8)
-        b.pack_start(get_image(ICONS['search'], 15), False, False, 0)
+        b.pack_start(get_image(ICONS['search'], BUTTON_ICON_SIZE), False, False, 0)
         b.pack_start(Gtk.Label(label='Search'), False, False, 0)
         search_button.add(b)
         search_button.get_style_context().add_class('primary-button')
@@ -241,8 +246,9 @@ class SearchPage(BasePage):
                 ('trash', 'Delete', 'Move to trash')):
             btn = Gtk.Button()
             btn.set_tooltip_text(tooltip)
-            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-            box.pack_start(get_image(ICONS[key], 16), False, False, 0)
+            btn.get_style_context().add_class('preview-action')
+            box = Gtk.Box(spacing=6)
+            box.pack_start(get_image(ICONS[key], BUTTON_ICON_SIZE), False, False, 0)
             lbl = Gtk.Label(label=label)
             lbl.get_style_context().add_class('preview-action-label')
             box.pack_start(lbl, False, False, 0)
@@ -278,28 +284,33 @@ class SearchPage(BasePage):
             self.scope_box.remove(child)
         self.mount_buttons = {}
 
-        all_btn = self._scope_chip('All mountpoints', ICONS['all_mounts'], active=True)
+        all_btn = self._scope_chip(
+            None, label='All mountpoints', icon_key=ICONS['all_mounts'], active=True)
         self.scope_box.pack_start(all_btn, False, False, 0)
         self.mount_buttons['__all__'] = all_btn
 
         for m in self.mounts.searchable_mounts():
-            label = m.mountpoint
-            if m.size_text:
-                label += f"  {m.size_text}"
-            btn = self._scope_chip(label, m.device_class)
+            btn = self._scope_chip(m, icon_key=m.device_class)
             self.scope_box.pack_start(btn, False, False, 0)
             self.mount_buttons[m.mountpoint] = btn
         self.scope_box.show_all()
 
-    def _scope_chip(self, label, icon_key, active=False):
+    def _scope_chip(self, m=None, label='All mountpoints', icon_key='all_mounts', active=False):
         btn = Gtk.ToggleButton()
         btn.set_active(active)
         btn.get_style_context().add_class('scope-chip')
+        if m is None:
+            tooltip = 'Search every searchable mountpoint'
+        else:
+            tooltip = (f"{m.device} · {m.fstype}"
+                       + (f" · {m.size_text}" if m.size_text else ''))
+        btn.set_tooltip_text(tooltip)
         box = Gtk.Box(spacing=6)
         icon_name = ICONS.get(icon_key, icon_key)
         tint = MOUNT_TINT if icon_name in ('usb', 'hard-drive', 'network') else None
         box.pack_start(get_image(icon_name, 14, tint), False, False, 0)
-        box.pack_start(Gtk.Label(label=label), False, False, 0)
+        box.pack_start(Gtk.Label(label=m.mountpoint if m is not None else label),
+                       False, False, 0)
         btn.add(box)
         btn.connect('toggled', self._on_scope_toggled)
         return btn
@@ -482,7 +493,7 @@ class SearchPage(BasePage):
 
     def _icon_button(self, icon_key, tooltip, handler):
         btn = Gtk.Button()
-        btn.set_image(get_image(icon_key, 15))
+        btn.set_image(get_image(icon_key, BUTTON_ICON_SIZE))
         btn.set_relief(Gtk.ReliefStyle.NONE)
         btn.set_tooltip_text(tooltip)
         if handler:
@@ -492,7 +503,7 @@ class SearchPage(BasePage):
 
     def _tool(self, icon_key, tooltip, handler, enabled=True):
         btn = Gtk.Button()
-        btn.set_image(get_image(icon_key, 16))
+        btn.set_image(get_image(icon_key, BUTTON_ICON_SIZE))
         btn.set_relief(Gtk.ReliefStyle.NONE)
         btn.set_tooltip_text(tooltip)
         btn.set_sensitive(enabled)

@@ -14,6 +14,7 @@ from modules.manager_navigation import NavigationManager
 from modules.manager_theme_applicator import ThemeApplicator
 from modules.manager_mounts import MountManager
 from config.config_themes import get_theme
+from utils.manager_theme import ThemeManager
 
 
 def main():
@@ -27,6 +28,10 @@ def main():
     # Apply default theme immediately for consistent startup
     default_theme = get_theme('default')
     theme_applicator.apply_theme(default_theme)
+
+    # Load the application stylesheet (widget classes: search page, results,
+    # preview pane, status bar). Without this only theme colors apply.
+    ThemeManager().load_css('resources/css/style.css')
 
     # Create and show main window
     window = DashboardWindow(navigation_manager, mount_manager)

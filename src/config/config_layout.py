@@ -18,6 +18,12 @@ class Dimensions:
     NAV_BUTTON_HEIGHT = 28
     NAV_BUTTON_PADDING_V = 6
     NAV_BUTTON_PADDING_H = 10
+
+    # Main-page button cap (operator rule r006): buttons in the content area
+    # must never exceed the sidebar nav button dimensions.
+    MAIN_BUTTON_MAX_HEIGHT = NAV_BUTTON_HEIGHT                          # 28
+    MAIN_BUTTON_MAX_WIDTH = SIDEBAR_WIDTH - 2 * NAV_BUTTON_PADDING_H   # 130
+    MAIN_BUTTON_ICON_SIZE = 14
     
     # Content area
     CONTENT_MARGIN = 40
