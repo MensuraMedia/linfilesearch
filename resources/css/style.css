@@ -560,3 +560,154 @@ scale slider:hover {
     font-weight: bold;
     color: #ffffff;
 }
+
+/* ============================================
+   linfilesearch — search page
+   ============================================ */
+
+.search-entry {
+    background-color: #262626;
+    border: 1px solid #1a1a1a;
+}
+
+.search-entry entry {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: #eeeeee;
+    font-size: 12pt;
+}
+
+.mode-toggle {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+    border-radius: 0;
+    padding: 6px 10px;
+}
+
+.mode-toggle:checked {
+    background-color: #0078D7;
+}
+
+.flat-icon-button {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+    border-radius: 0;
+    padding: 8px 12px;
+}
+
+.primary-button {
+    background-color: #0078D7;
+    border: 1px solid #0078D7;
+    border-radius: 0;
+    padding: 6px 16px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.scope-chip {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+    border-radius: 0;
+    padding: 2px 8px;
+    font-size: 9pt;
+}
+
+.scope-chip:checked {
+    background-color: #0078D7;
+}
+
+.tool-group {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+}
+
+.tool-button {
+    background-color: transparent;
+    border: none;
+    border-left: 1px solid #1a1a1a;
+    border-radius: 0;
+    padding: 5px 10px;
+}
+
+.tool-button:first-child {
+    border-left: none;
+}
+
+.tool-button:hover {
+    background-color: #404040;
+}
+
+.tool-button.active {
+    background-color: #0078D7;
+}
+
+.results-tree {
+    background-color: #2d2d2d;
+}
+
+.results-tree header button {
+    background-color: #313131;
+    border-bottom: 1px solid #1a1a1a;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    color: #aaaaaa;
+}
+
+.status-bar {
+    background-color: #313131;
+    border: 1px solid #1a1a1a;
+}
+
+.status-text {
+    color: #bbbbbb;
+    font-size: 9pt;
+}
+
+.preview-pane {
+    background-color: #303030;
+    border-left: 1px solid #1a1a1a;
+}
+
+.preview-head {
+    border-bottom: 1px solid #1a1a1a;
+    color: #999999;
+    font-size: 9pt;
+}
+
+.preview-name {
+    color: #ffffff;
+    font-size: 11pt;
+}
+
+.preview-type {
+    color: #888888;
+    font-size: 9pt;
+}
+
+.preview-prop-key {
+    color: #888888;
+    font-size: 9pt;
+}
+
+.preview-snippet {
+    background-color: #262626;
+    border: 1px solid #1a1a1a;
+    color: #9c9c9c;
+    font-family: Ubuntu Mono, monospace;
+    font-size: 9pt;
+}
+
+.preview-actions {
+    border-top: 1px solid #1a1a1a;
+}
+
+.preview-action-label {
+    color: #bbbbbb;
+    font-size: 8pt;
+}
+
+.nav-label {
+    padding-left: 5px;
+}

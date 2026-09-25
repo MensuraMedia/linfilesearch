@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GTK Python Dashboard Starter
+linfilesearch — GTK file search across all mountpoints
 Main application entry point - applies default theme on startup
 """
 
@@ -12,25 +12,27 @@ import sys
 from ui.dashboard_window import DashboardWindow
 from modules.manager_navigation import NavigationManager
 from modules.manager_theme_applicator import ThemeApplicator
+from modules.manager_mounts import MountManager
 from config.config_themes import get_theme
 
 
 def main():
     """Main application entry point"""
-    
+
     # Initialize managers
     navigation_manager = NavigationManager()
     theme_applicator = ThemeApplicator()
-    
+    mount_manager = MountManager()
+
     # Apply default theme immediately for consistent startup
     default_theme = get_theme('default')
     theme_applicator.apply_theme(default_theme)
-    
+
     # Create and show main window
-    window = DashboardWindow(navigation_manager)
+    window = DashboardWindow(navigation_manager, mount_manager)
     window.connect("destroy", Gtk.main_quit)
     window.show_all()
-    
+
     # Start GTK main loop
     Gtk.main()
     return 0

@@ -14,7 +14,7 @@ universal standards here.
 - Run: `./run.sh` or `python3 src/main.py` — app is live-tested on X11 (:0)
 - Icons: Phosphor (MIT) — master library ~/projects/assets/icons (1512×6 weights), project subset resources/icons/{regular,fill} (53 icons each, manifest.txt maps use)
 - Docs: docs/file-search-concept.md (technical concept), docs/mockups/ (3 UI mockups + index + baseline screenshot), docs/starter-README.md
-- No test framework yet (tests/ empty)
+- Tests: pytest (tests/) — matcher and mount-classification units; run `python3 -m pytest tests/ -q` from repo root
 
 ## Project rules
 (add project-specific rules as new entries; do not restate global rules)

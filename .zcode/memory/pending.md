@@ -1,7 +1,7 @@
 # Pending
 
-- UI direction chosen (A + fold-out preview, r004); icon tint decision still open: monochrome-white vs accent-tinted active states.
-- Icon tinting approach (Pillow pixbuf recolor across the 7 starter themes) is planned but unverified.
-- Throughput target (≥20k entries/s/worker) is an assumption — benchmark during implementation.
-- Initial git commit not yet made; no remote configured.
+- Roadmap next: filters (type/size/date popover), sort wiring polish, result action hardening, history + saved-search persistence (JSON under ~/.config/linfilesearch), settings page integration.
+- Icon tint decision still open: monochrome-white (current) vs accent-tinted active states.
+- Preview snippet has no match highlighting yet (v1 shows plain first 4KB of text files).
+- Throughput target (≥20k entries/s/worker) is an assumption — benchmark pending.
 
