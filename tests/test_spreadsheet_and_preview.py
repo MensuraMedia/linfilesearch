@@ -108,7 +108,7 @@ def test_preview_thumbnail_in_page(tmp_path):
     png = os.path.abspath('docs/mockups/mockup-a.png')
     assert os.path.exists(png)
     page.store.append([None, 'mockup-a.png', png, '160 KB', 'Image',
-                       '2026-09-25', '/home'])
+                       '2026-09-25', '/home', 1789000000.0])
     sel = page.view.get_selection()
     sel.select_path(Gtk.TreePath.new_first())
     pb = page.pv_icon.get_pixbuf()
@@ -134,7 +134,8 @@ def test_autofit_grows_column(tmp_path):
     long_path = '/' + '/'.join(f'directory-{i:03d}' for i in range(24)) + '/file.odt'
     page.store.append([None,
                        'an-extremely-long-filename-for-autofit-measurement.odt',
-                       long_path, '1 KB', 'Document', '2026-09-25', '/home'])
+                       long_path, '1 KB', 'Document', '2026-09-25', '/home',
+                       1789000000.0])
     _pump(0.2)
     name_col = page.view.get_column(0)
     before = name_col.get_width()

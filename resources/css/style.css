@@ -45,12 +45,20 @@ window {
     min-width: 150px;
 }
 
-/* Logo area - square 150x150 */
-.logo-area {
+/* Compact sidebar header (r025): small square logo cell + wordmark beside
+   it; nav buttons start directly under the header */
+.sidebar-header {
     background-color: #3a3a3a;
     border-bottom: 1px solid #1a1a1a;
-    padding: 0;
-    min-height: 150px;
+    padding: 8px 10px;
+}
+
+.logo-cell {
+    background-color: #2d2d2d;
+    border: 1px solid #767676;
+    border-radius: 0;
+    min-width: 34px;
+    min-height: 34px;
 }
 
 .logo-text {
@@ -827,17 +835,23 @@ scale slider:hover {
     color: #bbbbbb;
 }
 
-/* selected row keeps its colour under the cursor (r016) */
+/* hover / selected rows (r016, hardened r025): the selected highlight must
+   survive the cursor — background-image:none kills theme gradients that
+   otherwise bleed through on :hover */
 .results-tree row:hover,
 .sheet-tree row:hover {
     background-color: #373737;
+    background-image: none;
 }
 
 .results-tree row:selected,
 .results-tree row:selected:hover,
+.results-tree row:hover:selected,
 .sheet-tree row:selected,
-.sheet-tree row:selected:hover {
+.sheet-tree row:selected:hover,
+.sheet-tree row:hover:selected {
     background-color: #0078D7;
+    background-image: none;
 }
 
 /* pause+stop connected group (r018) */

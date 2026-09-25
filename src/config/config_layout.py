@@ -31,6 +31,11 @@ class Dimensions:
     # control in the search row shares the field's height, flush.
     SEARCH_ROW_HEIGHT = 38
     SEARCH_ROW_ICON_SIZE = 16
+
+    # Compact sidebar header (operator rule r025): small square logo cell
+    # beside the wordmark; replaces the old 150x150 centered logo block
+    LOGO_CELL_SIZE = 34
+    LOGO_CELL_ICON = 20
     
     # Content area
     CONTENT_MARGIN = 40
@@ -53,6 +58,19 @@ class Spacing:
 
 class Layout:
     """Main layout configuration"""
-    
+
     dimensions = Dimensions
     spacing = Spacing
+
+
+# Results sheet minimum column widths on open (operator rule r025): total
+# deliberately exceeds a narrow window — the sheet scrolls horizontally
+# instead of crushing Name/Path into unreadable slivers.
+RESULTS_MIN_WIDTHS = {
+    'Modified': 95,
+    'Name': 200,
+    'Path': 300,
+    'Size': 75,
+    'Type': 95,
+    'Mount': 90,
+}

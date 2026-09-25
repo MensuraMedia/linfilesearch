@@ -109,7 +109,12 @@ class HistoryPage(BasePage):
         for rec in reversed(self.history.records):       # newest first
             icon = self._bookmark_on if self.history.is_saved(rec) else self._bookmark_off
             matches = rec.get('matches')
-            matches_text = f"{matches:,}" if matches is not None else '…'
+            if matches is None:
+                matches_text = '…'
+            elif rec.get('stopped'):
+                matches_text = f"{matches:,} · stopped"
+            else:
+                matches_text = f"{matches:,}"
             self.store.append([
                 icon, rec.get('time', ''), rec.get('query', ''),
                 rec.get('mode', ''), 'Aa' if rec.get('case') else '—',

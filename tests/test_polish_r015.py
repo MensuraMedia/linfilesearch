@@ -41,8 +41,32 @@ def _build_window(tmp_path):
         HistoryManager(config_dir=str(tmp_path / 'cfg')))
 
 
-def test_sidebar_logo_compact_with_wordmark(tmp_path):
+def _find_style(container, css_class):
+    found = []
+
+    def walk(w):
+        if hasattr(w, 'forall'):
+            w.forall(walk)
+        if hasattr(w, 'get_style_context') and \
+                w.get_style_context().has_class(css_class):
+            found.append(w)
+    walk(container)
+    return found
+
+
+def test_sidebar_compact_header_square_cell(tmp_path):
     window = _build_window(tmp_path)
+    # r025: small square logo cell beside the wordmark; header is the first
+    # sidebar child and the nav buttons sit directly under it
+    first = window.sidebar.get_children()[0]
+    assert first.get_style_context().has_class('sidebar-header'), \
+        'sidebar must open with the compact header row'
+
+    cells = _find_style(window.sidebar, 'logo-cell')
+    assert len(cells) == 1, 'exactly one logo cell expected'
+    w, h = cells[0].get_size_request()
+    assert w == h and w > 0, 'logo cell must be a perfect square'
+
     images, labels = [], []
 
     def walk(w):
@@ -54,9 +78,10 @@ def test_sidebar_logo_compact_with_wordmark(tmp_path):
             labels.append(w)
     walk(window.sidebar)
     assert labels, 'wordmark label missing from sidebar'
+    from config.config_layout import Layout
     marks = [i for i in images if i.get_pixbuf() is not None
-             and i.get_pixbuf().get_height() == 120]
-    assert marks, 'sidebar mark must render at 120px (r021)'
+             and i.get_pixbuf().get_height() == Layout.dimensions.LOGO_CELL_ICON]
+    assert marks, 'sidebar mark must render at the compact cell size (r025)'
 
 
 def test_results_column_order(tmp_path):
@@ -101,7 +126,7 @@ def test_results_context_menu(tmp_path):
             Gtk.main_iteration_do(False)
     png = os.path.abspath('docs/mockups/mockup-a.png')
     page.store.append([None, 'mockup-a.png', png, '160 KB', 'Image',
-                       '2026-09-25', '/home'])
+                       '2026-09-25', '/home', 1789000000.0])
 
     # the offscreen Paned rig never maps the bin window, so geometry-based
     # hit-testing can't resolve rows here; stub it to the first row and test

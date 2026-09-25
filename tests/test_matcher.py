@@ -1,5 +1,7 @@
 """Unit tests for query matchers (pure functions)."""
 
+import pytest
+
 from modules.manager_search import make_matcher
 from config.config_search import MODE_SUBSTRING, MODE_WILDCARD, MODE_REGEX
 
@@ -34,9 +36,11 @@ def test_regex():
     assert not match('annual-report-2025.pdf')
 
 
-def test_invalid_regex_matches_nothing():
-    match = make_matcher('([unclosed', MODE_REGEX)
-    assert match('anything.txt') is False
+def test_invalid_regex_raises():
+    # r025: bad patterns surface as ValueError instead of a silent
+    # match-nothing scan that reports "Done — 0 matches"
+    with pytest.raises(ValueError):
+        make_matcher('([unclosed', MODE_REGEX)
 
 
 def test_empty_query_returns_none():

@@ -87,13 +87,15 @@ class HistoryManager:
         self._notify()
         return record
 
-    def finish(self, record_id, matches, elapsed):
+    def finish(self, record_id, matches, elapsed, stopped=False):
         """Patch a record with final counts after the search ends."""
         with self._lock:
             for rec in self.records:
                 if rec['id'] == record_id:
                     rec['matches'] = matches
                     rec['elapsed'] = round(elapsed, 1) if elapsed else None
+                    if stopped:
+                        rec['stopped'] = True
                     break
             else:
                 return

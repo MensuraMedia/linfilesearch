@@ -6,6 +6,7 @@ preview pane (fold-out, per mockup A2).
 """
 
 import os
+import queue
 import time
 
 import gi
@@ -20,7 +21,7 @@ from config.config_search import (
 from utils.icon_loader import get_icon, get_image, MOUNT_TINT, ACCENT_TINT
 from utils.treeview_utils import attach_spreadsheet_behavior, set_text_index
 from utils.preview import preview_for
-from config.config_layout import Layout
+from config.config_layout import Layout, RESULTS_MIN_WIDTHS
 
 BUTTON_ICON_SIZE = Layout.dimensions.MAIN_BUTTON_ICON_SIZE
 BUTTON_MAX_H = Layout.dimensions.MAIN_BUTTON_MAX_HEIGHT
@@ -46,6 +47,17 @@ def human_size(n):
         n /= 1024
 
 
+def format_mtime(mtime):
+    """Render an mtime; corrupt/extreme values degrade to '—' instead of
+    raising inside the drain callback (which would kill it for the session)."""
+    if mtime is None:
+        return '—'
+    try:
+        return time.strftime('%Y-%m-%d', time.localtime(mtime))
+    except (OSError, OverflowError, ValueError):
+        return '—'
+
+
 class SearchPage(BasePage):
     """File search page (A+ layout: dashboard + fold-out preview)."""
 
@@ -54,6 +66,7 @@ class SearchPage(BasePage):
         self.history = history_manager
         self.engine = None
         self._active_record = None
+        self._search_state = 'idle'
         self.mode = DEFAULTS['mode']
         self.case_sensitive = DEFAULTS['case_sensitive']
         self.mount_buttons = {}
@@ -82,7 +95,7 @@ class SearchPage(BasePage):
 
         self.query_entry = Gtk.Entry()
         self.query_entry.set_placeholder_text(
-            "Search file names — try  *report*.odt  or  meeting notes")
+            "Search file names — e.g. LinShot (substring) or LinShot* (wildcard)")
         self.query_entry.set_hexpand(True)
         self.query_entry.connect('activate', lambda w: self.start_search())
         # NB: widget margin (not CSS padding) is double-counted in natural
@@ -172,8 +185,11 @@ class SearchPage(BasePage):
 
         # --- results (left) ---
         left = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        # model: icon,name,path,size,type,modified-text,mount,mtime-epoch
+        # (hidden epoch column keeps Modified sorting numeric — '—' rows
+        # sink to the oldest end instead of floating up as text, r025)
         self.store = Gtk.ListStore(
-            GdkPixbuf.Pixbuf, str, str, str, str, str, str)
+            GdkPixbuf.Pixbuf, str, str, str, str, str, str, float)
         self.view = Gtk.TreeView(model=self.store)
         self.view.set_hexpand(True)
         self.view.set_vexpand(True)
@@ -211,6 +227,13 @@ class SearchPage(BasePage):
         self.view.append_column(text_cols['Size'])
         self.view.append_column(text_cols['Type'])
         self.view.append_column(text_cols['Mount'])
+        # Modified sorts on the hidden epoch column (numeric)
+        text_cols['Modified'].set_sort_column_id(7)
+        # readable minimum widths on open (operator rule r025): names and
+        # paths must not be squeezed to slivers; sheet scrolls horizontally
+        for col in self.view.get_columns():
+            col.set_min_width(
+                RESULTS_MIN_WIDTHS.get(col.get_title(), 60))
         attach_spreadsheet_behavior(self.view)
         self.view.connect('button-press-event', self.on_results_button_press)
 
@@ -328,12 +351,20 @@ class SearchPage(BasePage):
     # ------------------------------------------------------- scope chips
 
     def populate_scope_chips(self):
+        # preserve the operator's scope across refresh / mount-table changes
+        # (r025: a USB plug-in used to silently reset the scope to "All")
+        previous = None
+        for path, btn in getattr(self, 'mount_buttons', {}).items():
+            if btn.get_active():
+                previous = path
+                break
+
         for child in self.scope_box.get_children():
             self.scope_box.remove(child)
         self.mount_buttons = {}
 
         all_btn = self._scope_chip(
-            None, label='All mountpoints', icon_key=ICONS['all_mounts'], active=True)
+            None, label='All mountpoints', icon_key=ICONS['all_mounts'], active=False)
         self.scope_box.pack_start(all_btn, False, False, 0)
         self.mount_buttons['__all__'] = all_btn
 
@@ -341,6 +372,8 @@ class SearchPage(BasePage):
             btn = self._scope_chip(m, icon_key=m.device_class)
             self.scope_box.pack_start(btn, False, False, 0)
             self.mount_buttons[m.mountpoint] = btn
+        target = previous if previous in self.mount_buttons else '__all__'
+        self.mount_buttons[target].set_active(True)
         self.scope_box.show_all()
 
     def _scope_chip(self, m=None, label='All mountpoints', icon_key='all_mounts', active=False):
@@ -365,12 +398,21 @@ class SearchPage(BasePage):
         return btn
 
     def _on_scope_toggled(self, button):
-        # exclusive selection: "All" or exactly one mount for now
-        for btn in self.mount_buttons.values():
-            if btn is not button and btn.get_active():
-                btn.set_active(False)
-        if not any(b.get_active() for b in self.mount_buttons.values()):
-            self.mount_buttons['__all__'].set_active(True)
+        # exclusive selection: "All" or exactly one mount for now.
+        # Guard against re-entrancy: without it, deactivating the other
+        # chip fires *its* handler, which deactivates this one and finally
+        # re-activates "All" — a clicked mount chip silently popped back.
+        if getattr(self, '_scope_syncing', False):
+            return
+        self._scope_syncing = True
+        try:
+            for btn in self.mount_buttons.values():
+                if btn is not button and btn.get_active():
+                    btn.set_active(False)
+            if not any(b.get_active() for b in self.mount_buttons.values()):
+                self.mount_buttons['__all__'].set_active(True)
+        finally:
+            self._scope_syncing = False
 
     def selected_roots(self):
         for path, btn in self.mount_buttons.items():
@@ -387,13 +429,33 @@ class SearchPage(BasePage):
         query = self.query_entry.get_text().strip()
         if not query:
             return
-        matcher = make_matcher(query, self.mode, self.case_sensitive)
+        notice = ''
+        if self.mode == MODE_SUBSTRING and any(c in query for c in '*?['):
+            # glob metachars are literal in substring mode — the r025
+            # "missing files" trap (LinShot* matched nothing). Switch to
+            # wildcard and say so instead of scanning to a bogus zero.
+            self.mode = MODE_WILDCARD
+            self._sync_mode_buttons()
+            notice = ' — wildcards detected, switched to Wildcard mode'
+        try:
+            matcher = make_matcher(query, self.mode, self.case_sensitive)
+        except ValueError as e:
+            self.status_scan.set_text(str(e))
+            self.status_spinner.stop()
+            return
         if matcher is None:
             return
         self.stop_search()
         self.store.clear()
-        self.engine = SearchEngine()
         roots = self.selected_roots()
+        if not roots:
+            self.engine = None
+            self.status_scan.set_text('No searchable mountpoints found.')
+            self.status_matches.set_text('')
+            self._search_state = 'idle'
+            self.set_stop_running(False)
+            return
+        self.engine = SearchEngine()
         scope_kind = 'all'
         if not self.mount_buttons.get('__all__').get_active():
             scope_kind = 'paths'
@@ -406,7 +468,7 @@ class SearchPage(BasePage):
                           include_hidden=DEFAULTS['include_hidden'],
                           follow_symlinks=DEFAULTS['follow_symlinks'])
         self.status_spinner.start()
-        self.status_scan.set_text(f"Scanning {', '.join(roots)} …")
+        self.status_scan.set_text(f"Scanning {', '.join(roots)} …{notice}")
         self._search_state = 'running'
         self.set_stop_running(True)
 
@@ -445,12 +507,19 @@ class SearchPage(BasePage):
             self.status_scan.set_text('Scanning …')
 
     def stop_search(self):
+        active = self._search_state in ('running', 'paused')
         if self.engine:
-            stats = self.engine.stats.snapshot()
-            self.engine.stop()
-            self._finish_active_record(stats)
+            if active:
+                stats = self.engine.stats.snapshot()
+                self.engine.stop()
+                self._finish_active_record(stats, stopped=True)
+                self.status_scan.set_text(
+                    f"Stopped — {stats['matched']:,} matches, "
+                    f"{stats['skipped']} skipped.")
+                self.status_spinner.stop()
+            else:
+                self.engine.stop()
         self._search_state = 'idle'
-        self.status_spinner.stop()
         self.set_stop_running(False)
 
     def set_stop_running(self, running):
@@ -459,42 +528,54 @@ class SearchPage(BasePage):
         self.stop_button.set_image(get_image(ICONS['stop'], ROW_ICON_SIZE, tint))
         self._stop_red = running
 
-    def _finish_active_record(self, stats):
+    def _finish_active_record(self, stats, stopped=False):
         if self._active_record is not None and self.history is not None:
             self.history.finish(
                 self._active_record['id'],
-                stats.get('matched', 0), stats.get('elapsed'))
+                stats.get('matched', 0), stats.get('elapsed'),
+                stopped=stopped)
             self._active_record = None
 
     def _drain_results(self):
-        if not self.engine:
-            return True
         engine = self.engine
+        if engine is None:
+            return True
         drained = 0
         while drained < 200:
             try:
                 rec = engine.results.get_nowait()
-            except Exception:
+            except queue.Empty:
                 break
             icon_key, type_label = file_type_info(rec['name'], rec['is_dir'])
-            mtime = time.strftime('%Y-%m-%d', time.localtime(rec['mtime'])) if rec['mtime'] else '—'
-            mount = next((p for p in ('/home', '/') if rec['path'].startswith(p)), '/')
+            mtime = format_mtime(rec.get('mtime'))
+            # true mount: the root this record was found under (r025; the
+            # old startswith guess could only ever say '/home' or '/')
+            mount = rec.get('root') or os.path.dirname(rec['path'])
+            epoch = rec.get('mtime') if rec.get('mtime') is not None else 0.0
             self.store.append([
                 get_icon(icon_key, 15), rec['name'], rec['path'],
                 human_size(rec['size']) if not rec['is_dir'] else '—',
-                type_label, mtime, mount])
+                type_label, mtime, mount, epoch])
             drained += 1
         stats = engine.stats.snapshot()
         self.status_matches.set_text(f"{stats['matched']:,} matches · {stats['dirs_visited']:,} dirs")
-        if stats['elapsed'] and engine.stats.finished_at:
-            self.status_time.set_text(f"{stats['elapsed']:.0f}s")
+        if engine.stats.finished_at:
+            self.status_time.set_text(f"{stats['elapsed']:.1f}s")
+        elif stats['elapsed'] >= 1:
+            # live duration while scanning (r025): the operator can tell a
+            # working search from a hung one without waiting for Done
+            self.status_time.set_text(f"{stats['elapsed']:.0f}s …")
+        else:
+            self.status_time.set_text('')
         if engine.stats.finished_at and engine.results.empty():
+            verb = 'Stopped' if engine.stats.stopped else 'Done'
             self.status_spinner.stop()
             self._search_state = 'idle'
             self.status_scan.set_text(
-                f"Done — {stats['matched']:,} matches, {stats['skipped']} skipped.")
-            self._finish_active_record(stats)
+                f"{verb} — {stats['matched']:,} matches, {stats['skipped']} skipped.")
+            self._finish_active_record(stats, stopped=engine.stats.stopped)
             self.set_stop_running(False)
+            self.engine = None
         return True
 
     # ---------------------------------------------------------- preview

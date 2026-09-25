@@ -38,37 +38,40 @@ class Sidebar(Gtk.Box):
             self.nav_manager.navigate_to("search")
     
     def build_logo_area(self):
-        """Build logo area: mark upper-center, wordmark near the bottom (r018)"""
+        """Compact header (operator rule r025): small square logo cell beside
+        the wordmark — replaces the old 150px centered logo block, so the
+        nav buttons start right under the header."""
 
-        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        logo_box.set_size_request(
-            Layout.dimensions.LOGO_AREA_WIDTH,
-            Layout.dimensions.LOGO_AREA_HEIGHT
-        )
-        logo_box.get_style_context().add_class('logo-area')
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        header.get_style_context().add_class('sidebar-header')
+
+        cell = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        cell.get_style_context().add_class('logo-cell')
+        cell.set_valign(Gtk.Align.CENTER)
+        # perfect square: equal explicit width/height request
+        cell.set_size_request(Layout.dimensions.LOGO_CELL_SIZE,
+                              Layout.dimensions.LOGO_CELL_SIZE)
 
         logo_path = self.get_logo_path()
         if os.path.exists(logo_path):
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    logo_path, 120, 120, True)
+                    logo_path, Layout.dimensions.LOGO_CELL_ICON,
+                    Layout.dimensions.LOGO_CELL_ICON, True)
                 mark = Gtk.Image.new_from_pixbuf(pixbuf)
-                mark.set_margin_top(6)
-                mark.set_margin_start(6)   # optical nudge: glyph leans left
-                mark.set_halign(Gtk.Align.CENTER)
-                logo_box.pack_start(mark, False, False, 0)
+                cell.pack_start(mark, True, False, 0)
             except Exception as e:
                 print(f"Could not load logo: {e}")
 
-        # wordmark anchored near the bottom, centered under the mark
+        header.pack_start(cell, False, False, 0)
+
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
-        wordmark.set_xalign(0.5)
-        # wordmark anchored low but nudged up to center it in the gap
-        # between the mark and the first nav button (r022)
-        logo_box.pack_end(wordmark, False, False, 14)
+        wordmark.set_xalign(0.0)
+        wordmark.set_valign(Gtk.Align.CENTER)
+        header.pack_start(wordmark, False, False, 0)
 
-        self.pack_start(logo_box, False, False, 0)
+        self.pack_start(header, False, False, 0)
     
     def get_logo_path(self):
         """Get path to logo image"""
@@ -76,13 +79,6 @@ class Sidebar(Gtk.Box):
             os.path.dirname(__file__), '..', '..',
             'resources', 'images', 'logo.png'
         )
-    
-    def add_fallback_logo(self, container):
-        """Add fallback logo text"""
-        logo_label = Gtk.Label(label="LINFILESEARCH")
-        logo_label.get_style_context().add_class('logo-text')
-        logo_label.set_xalign(0.5)
-        container.pack_start(logo_label, True, True, 0)
 
     def build_navigation(self):
         """Build navigation with linfilesearch pages (Search top-bordered, Settings bottom)"""
