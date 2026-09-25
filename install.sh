@@ -53,7 +53,7 @@ cat > "$DESKTOP" <<EOF
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=linfilesearch
+Name=LinFileSearch
 GenericName=File Search
 Comment=Search files across all mountpoints, including external drives
 Exec=$BIN

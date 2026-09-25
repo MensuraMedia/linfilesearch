@@ -19,7 +19,7 @@ class DashboardWindow(Gtk.Window):
     def __init__(self, navigation_manager, mount_manager=None,
                  history_manager=None):
         """Initialize window"""
-        super().__init__(title="linfilesearch")
+        super().__init__(title="LinFileSearch")
 
         self.nav_manager = navigation_manager
 
