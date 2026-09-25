@@ -38,32 +38,32 @@ class Sidebar(Gtk.Box):
             self.nav_manager.navigate_to("search")
     
     def build_logo_area(self):
-        """Build logo area"""
-        
-        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        """Build logo area: compact icon with wordmark below (r015, mockup ref)"""
+
+        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         logo_box.set_size_request(
             Layout.dimensions.LOGO_AREA_WIDTH,
             Layout.dimensions.LOGO_AREA_HEIGHT
         )
         logo_box.get_style_context().add_class('logo-area')
-        
+
         logo_path = self.get_logo_path()
         if os.path.exists(logo_path):
             try:
+                # transparent-background mark at 56px, not the old 145px fill
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    logo_path,
-                    Layout.dimensions.LOGO_IMAGE_SIZE,
-                    Layout.dimensions.LOGO_IMAGE_SIZE,
-                    True
-                )
+                    logo_path, 56, 56, True)
                 logo_image = Gtk.Image.new_from_pixbuf(pixbuf)
                 logo_box.pack_start(logo_image, True, True, 0)
             except Exception as e:
-                print(f"Could not load logo: {e}")
-                self.add_fallback_logo(logo_box)
-        else:
-            self.add_fallback_logo(logo_box)
-        
+                print(f"Could not load logo: {e}")   # wordmark still shows below
+
+        # wordmark below the icon, as in the original mockup
+        wordmark = Gtk.Label(label="LINFILESEARCH")
+        wordmark.get_style_context().add_class('logo-cap')
+        wordmark.set_xalign(0.5)
+        logo_box.pack_start(wordmark, False, False, 6)
+
         self.pack_start(logo_box, False, False, 0)
     
     def get_logo_path(self):

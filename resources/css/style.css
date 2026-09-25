@@ -610,9 +610,9 @@ scale slider:hover {
 
 .flat-icon-button {
     background-color: transparent;
-    border: none;
+    border: 1px solid #1a1a1a;
     border-radius: 0;
-    padding: 2px 8px;
+    padding: 2px 9px;
     min-height: 20px;
 }
 
@@ -805,13 +805,15 @@ scale slider:hover {
     margin-right: 4px;
 }
 
-/* spreadsheet header cell borders (operator rule r011) */
+/* spreadsheet header cells: clear full border (operator rule r011/r015) */
 .results-tree header button,
 .sheet-tree header button {
-    border-right: 1px solid #1a1a1a;
+    border: 1px solid #cccccc;
 }
 
-.results-tree header button:last-child,
-.sheet-tree header button:last-child {
-    border-right: none;
+/* logo wordmark below the 56px mark (r015) */
+.logo-cap {
+    font-size: 9pt;
+    letter-spacing: 1.5px;
+    color: #bbbbbb;
 }

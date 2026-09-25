@@ -28,6 +28,7 @@ BUTTON_MAX_W = Layout.dimensions.MAIN_BUTTON_MAX_WIDTH
 BUTTON_TARGET_H = Layout.dimensions.MAIN_BUTTON_TARGET_HEIGHT
 SEARCH_ROW_H = Layout.dimensions.SEARCH_ROW_HEIGHT
 ROW_ICON_SIZE = Layout.dimensions.SEARCH_ROW_ICON_SIZE
+STOP_RED_TINT = (0xd9, 0x53, 0x4f)      # running-state stop colour (r015)
 
 
 def pin_button_height(btn, height=None):
@@ -391,6 +392,7 @@ class SearchPage(BasePage):
         self.status_spinner.start()
         self.status_scan.set_text(f"Scanning {', '.join(roots)} …")
         self._search_state = 'running'
+        self.set_stop_running(True)
 
     def apply_criteria(self, record):
         """Prepopulate every search field from a history/saved record."""
@@ -433,6 +435,13 @@ class SearchPage(BasePage):
             self._finish_active_record(stats)
         self._search_state = 'idle'
         self.status_spinner.stop()
+        self.set_stop_running(False)
+
+    def set_stop_running(self, running):
+        """Stop control shows red while a search is running (r015)."""
+        tint = STOP_RED_TINT if running else None
+        self.stop_button.set_image(get_image(ICONS['stop'], ROW_ICON_SIZE, tint))
+        self._stop_red = running
 
     def _finish_active_record(self, stats):
         if self._active_record is not None and self.history is not None:
@@ -469,6 +478,7 @@ class SearchPage(BasePage):
             self.status_scan.set_text(
                 f"Done — {stats['matched']:,} matches, {stats['skipped']} skipped.")
             self._finish_active_record(stats)
+            self.set_stop_running(False)
         return True
 
     # ---------------------------------------------------------- preview
