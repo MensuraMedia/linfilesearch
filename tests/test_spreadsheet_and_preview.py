@@ -113,6 +113,11 @@ def test_preview_thumbnail_in_page(tmp_path):
     sel.select_path(Gtk.TreePath.new_first())
     pb = page.pv_icon.get_pixbuf()
     assert pb is not None and pb.get_width() >= 100
+    # property VALUES are left-aligned like the sheets (r024)
+    from gi.repository import Gtk as _Gtk
+    values = [page.pv_props.get_child_at(1, r) for r in range(5)]
+    assert all(v is not None and v.get_halign() == _Gtk.Align.START
+               for v in values), 'preview property values must be left-aligned'
 
 
 def test_autofit_grows_column(tmp_path):

@@ -525,7 +525,8 @@ class SearchPage(BasePage):
             label = Gtk.Label(label=k)
             label.get_style_context().add_class('preview-prop-key')
             value = Gtk.Label(label=v or '—')
-            value.set_halign(Gtk.Align.END)
+            value.set_halign(Gtk.Align.START)   # left-aligned like the sheets
+            value.set_xalign(0.0)
             value.set_ellipsize(3)
             value.set_max_width_chars(24)
             value.set_tooltip_text(v or '')

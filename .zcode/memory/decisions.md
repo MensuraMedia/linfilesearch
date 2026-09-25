@@ -25,3 +25,4 @@ Record architectural decisions with rationale. Newest at the bottom.
 - 2026-09-25 (r022): Wordmark at 14px bottom margin (balanced between mark and first nav button). All five pages pinned to 24px margins / 12px spacing by test. Repo-root install.sh is the canonical installer (s014 remains the ledger-side twin); README points to ./install.sh.
 - 2026-09-25 (r023): Display name = 'LinFileSearch' (menu .desktop Name + window title); command name and WM_CLASS stay 'linfilesearch' so launcher grouping and the binary name are unchanged.
 
+- 2026-09-25 (r024): Preview pane property values are left-aligned (halign/xalign START), matching sheet cell alignment.
