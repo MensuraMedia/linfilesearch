@@ -27,6 +27,7 @@ BUTTON_MAX_H = Layout.dimensions.MAIN_BUTTON_MAX_HEIGHT
 BUTTON_MAX_W = Layout.dimensions.MAIN_BUTTON_MAX_WIDTH
 BUTTON_TARGET_H = Layout.dimensions.MAIN_BUTTON_TARGET_HEIGHT
 SEARCH_ROW_H = Layout.dimensions.SEARCH_ROW_HEIGHT
+ROW_ICON_SIZE = Layout.dimensions.SEARCH_ROW_ICON_SIZE
 
 
 def pin_button_height(btn, height=None):
@@ -81,10 +82,12 @@ class SearchPage(BasePage):
             "Search file names — try  *report*.odt  or  meeting notes")
         self.query_entry.set_hexpand(True)
         self.query_entry.connect('activate', lambda w: self.start_search())
-        entry_box = Gtk.Box(spacing=8, margin=6)
+        # NB: widget margin (not CSS padding) is double-counted in natural
+        # height — keep margin 0 and pad via .search-entry CSS (search-row-spec)
+        entry_box = Gtk.Box(spacing=8)
         entry_box.get_style_context().add_class('search-entry')
         entry_box.set_property('height-request', SEARCH_ROW_H)
-        entry_box.pack_start(get_image(ICONS['search'], BUTTON_ICON_SIZE), False, False, 0)
+        entry_box.pack_start(get_image(ICONS['search'], ROW_ICON_SIZE), False, False, 0)
         entry_box.pack_start(self.query_entry, True, True, 0)
         row.pack_start(entry_box, True, True, 0)
 
@@ -101,10 +104,11 @@ class SearchPage(BasePage):
                 'case': 'Match case', 'wildcard': 'Wildcard mode (* ? [ ])',
                 'regex': 'Regular expression mode'}[key])
             box = Gtk.Box(spacing=6)
-            box.pack_start(get_image(ICONS[key], BUTTON_ICON_SIZE), False, False, 0)
+            box.pack_start(get_image(ICONS[key], ROW_ICON_SIZE), False, False, 0)
             box.pack_start(Gtk.Label(label=label), False, False, 0)
             btn.add(box)
-            btn.set_property('height-request', SEARCH_ROW_H)
+            # strip carries a 1px border top/bottom: 36 + 2 = SEARCH_ROW_H
+            btn.set_property('height-request', SEARCH_ROW_H - 2)
             btn.get_style_context().add_class('mode-toggle')
             btn.connect('toggled', self._on_mode_toggled, key)
             mode_group.pack_start(btn, False, False, 0)
@@ -112,13 +116,15 @@ class SearchPage(BasePage):
         row.pack_start(mode_group, False, False, 0)
 
         self.pause_button = self._icon_button(
-            ICONS['pause'], 'Pause search', self.on_pause_clicked, height=SEARCH_ROW_H)
+            ICONS['pause'], 'Pause search', self.on_pause_clicked,
+            height=SEARCH_ROW_H, icon_size=ROW_ICON_SIZE)
         self.stop_button = self._icon_button(
-            ICONS['stop'], 'Stop search', lambda w: self.stop_search(), height=SEARCH_ROW_H)
+            ICONS['stop'], 'Stop search', lambda w: self.stop_search(),
+            height=SEARCH_ROW_H, icon_size=ROW_ICON_SIZE)
         search_button = Gtk.Button()
         search_button.set_tooltip_text('Run search')
         b = Gtk.Box(spacing=8)
-        b.pack_start(get_image(ICONS['search'], BUTTON_ICON_SIZE), False, False, 0)
+        b.pack_start(get_image(ICONS['search'], ROW_ICON_SIZE), False, False, 0)
         b.pack_start(Gtk.Label(label='Search'), False, False, 0)
         search_button.add(b)
         search_button.get_style_context().add_class('primary-button')
@@ -563,9 +569,9 @@ class SearchPage(BasePage):
 
     # ------------------------------------------------------------ utils
 
-    def _icon_button(self, icon_key, tooltip, handler, height=None):
+    def _icon_button(self, icon_key, tooltip, handler, height=None, icon_size=None):
         btn = Gtk.Button()
-        btn.set_image(get_image(icon_key, BUTTON_ICON_SIZE))
+        btn.set_image(get_image(icon_key, icon_size or BUTTON_ICON_SIZE))
         btn.set_relief(Gtk.ReliefStyle.NONE)
         btn.set_tooltip_text(tooltip)
         if handler:

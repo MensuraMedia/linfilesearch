@@ -571,6 +571,7 @@ scale slider:hover {
 .search-entry {
     background-color: #262626;
     border: 1px solid #1a1a1a;
+    padding: 5px 10px;
 }
 
 .search-entry entry {
@@ -578,7 +579,9 @@ scale slider:hover {
     border: none;
     box-shadow: none;
     color: #eeeeee;
-    font-size: 12pt;
+    font-size: 11pt;
+    min-height: 22px;
+    padding: 2px 8px;
 }
 
 .mode-group {
@@ -754,7 +757,7 @@ scale slider:hover {
 }
 
 .mode-toggle label {
-    font-size: 8pt;
+    font-size: 9pt;
 }
 
 .primary-button label {

@@ -35,8 +35,8 @@ MODE_REGEX = 'regex'
 ICONS = {
     'search': 'magnifying-glass',
     'clear': 'x',
-    'stop': 'stop-circle',
-    'pause': 'pause-circle',
+    'stop': 'stop',
+    'pause': 'columns',
     'play': 'play',
     'refresh': 'arrow-clockwise',
     'spinner': 'spinner-gap',
