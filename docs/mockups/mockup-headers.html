@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Header Cell Border Study — linfilesearch</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; color:#eee; padding:28px; }
+  h1 { font-size:20px; margin-bottom:4px; }
+  .sub { color:#999; font-size:13px; margin-bottom:26px; }
+  .panel { background:#2d2d2d; border:1px solid #000; padding:18px 20px; margin-bottom:24px; }
+  .panel h2 { font-size:14px; margin-bottom:2px; }
+  .panel .note { font-size:11px; color:#999; margin-bottom:12px; }
+  .tag { font-size:10px; border:1px solid #1a1a1a; background:#353535; color:#bbb; padding:2px 8px; margin-left:8px; vertical-align:middle; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  td { padding:6px 10px; border-bottom:1px solid #262626; color:#ddd; }
+  tr.sel td { background:#0078D7; color:#fff; }
+
+  /* V1: subtle neutral full border (what the app uses today) */
+  .v1 th { background:#313131; color:#aaa; font-weight:normal; text-align:left;
+           padding:5px 8px; border:1px solid #4a4a4a; }
+
+  /* V2: soft hairline, lighter than #4a4a4a but calmer than #ccc */
+  .v2 th { background:#313131; color:#aaa; font-weight:normal; text-align:left;
+           padding:5px 8px; border:1px solid #767676; }
+
+  /* V3: accent bottom rule — column separators faint, blue rule under the band */
+  .v3 th { background:#313131; color:#aaa; font-weight:normal; text-align:left;
+           padding:5px 8px 7px 8px; border:1px solid #2e2e2e; border-bottom:2px solid #0078D7; }
+
+  /* V4: raised band — lighter fill, inner hairlines, dark outer rule */
+  .v4 th { background:#3a3a3a; color:#ccc; font-weight:normal; text-align:left;
+           padding:5px 8px; border:1px solid #666666; border-bottom:2px solid #1a1a1a; }
+</style>
+</head>
+<body>
+<h1>Header cell border study</h1>
+<div class="sub">Four treatments for the spreadsheet header band (#ccc was removed — it sat too loudly on the
+dark fill). Each keeps ≥4px padding on all header sides. Pick one and it goes into the app across
+results / History / Saved.</div>
+
+<div class="panel">
+  <h2>V1 — Subtle neutral <span class="tag">current app</span></h2>
+  <div class="note">1px #4a4a4a full border; quiet definition, lowest contrast.</div>
+  <table class="v1">
+    <tr><th>Name</th><th>Path</th><th>Size</th><th>Type</th><th>Modified</th></tr>
+    <tr><td>q3-financial-report.odt</td><td>/home/user/Documents/finance/2026</td><td>2.4 MB</td><td>Document</td><td>2026-09-18</td></tr>
+    <tr class="sel"><td>annual-report-2025.pdf</td><td>/mnt/data/archive/reports</td><td>8.1 MB</td><td>PDF</td><td>2026-01-30</td></tr>
+    <tr><td>report-cover.png</td><td>/home/user/Pictures/work</td><td>640 KB</td><td>Image</td><td>2026-09-18</td></tr>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>V2 — Soft hairline <span class="tag">recommended</span></h2>
+  <div class="note">1px #767676 full border; clearly visible cell edges without the glare of #ccc.</div>
+  <table class="v2">
+    <tr><th>Name</th><th>Path</th><th>Size</th><th>Type</th><th>Modified</th></tr>
+    <tr><td>q3-financial-report.odt</td><td>/home/user/Documents/finance/2026</td><td>2.4 MB</td><td>Document</td><td>2026-09-18</td></tr>
+    <tr class="sel"><td>annual-report-2025.pdf</td><td>/mnt/data/archive/reports</td><td>8.1 MB</td><td>PDF</td><td>2026-01-30</td></tr>
+    <tr><td>report-cover.png</td><td>/home/user/Pictures/work</td><td>640 KB</td><td>Image</td><td>2026-09-18</td></tr>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>V3 — Accent bottom rule</h2>
+  <div class="note">Faint column separators (#2e2e2e) plus a 2px accent-blue rule under the whole band.</div>
+  <table class="v3">
+    <tr><th>Name</th><th>Path</th><th>Size</th><th>Type</th><th>Modified</th></tr>
+    <tr><td>q3-financial-report.odt</td><td>/home/user/Documents/finance/2026</td><td>2.4 MB</td><td>Document</td><td>2026-09-18</td></tr>
+    <tr class="sel"><td>annual-report-2025.pdf</td><td>/mnt/data/archive/reports</td><td>8.1 MB</td><td>PDF</td><td>2026-01-30</td></tr>
+    <tr><td>report-cover.png</td><td>/home/user/Pictures/work</td><td>640 KB</td><td>Image</td><td>2026-09-18</td></tr>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>V4 — Raised band</h2>
+  <div class="note">Lighter header fill (#3a3a3a) with #666 inner hairlines and a dark outer rule.</div>
+  <table class="v4">
+    <tr><th>Name</th><th>Path</th><th>Size</th><th>Type</th><th>Modified</th></tr>
+    <tr><td>q3-financial-report.odt</td><td>/home/user/Documents/finance/2026</td><td>2.4 MB</td><td>Document</td><td>2026-09-18</td></tr>
+    <tr class="sel"><td>annual-report-2025.pdf</td><td>/mnt/data/archive/reports</td><td>8.1 MB</td><td>PDF</td><td>2026-01-30</td></tr>
+    <tr><td>report-cover.png</td><td>/home/user/Pictures/work</td><td>640 KB</td><td>Image</td><td>2026-09-18</td></tr>
+  </table>
+</div>
+</body>
+</html>

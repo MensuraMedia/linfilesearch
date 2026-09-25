@@ -77,11 +77,14 @@ class HistoryPage(BasePage):
         self.mark_col.set_fixed_width(44)
         set_text_index(self.mark_col, None)
         self.view.append_column(self.mark_col)
-        for title, idx in (('Time', 1), ('Query', 2), ('Mode', 3),
-                           ('Case', 4), ('Scope', 5), ('Matches', 6)):
+        # fixed widths per operator reference screenshot (r016)
+        for title, idx, width in (('Time', 1, 130), ('Query', 2, 420),
+                                  ('Mode', 3, 150), ('Case', 4, 60),
+                                  ('Scope', 5, 280), ('Matches', 6, 70)):
             renderer = Gtk.CellRendererText()
             renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             col = Gtk.TreeViewColumn(title, renderer, text=idx)
+            col.set_fixed_width(width)
             col.set_resizable(True)
             col.set_reorderable(True)
             col.set_sort_column_id(idx)

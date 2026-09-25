@@ -124,17 +124,47 @@ def test_autofit_grows_column(tmp_path):
     off.add(page)
     off.show_all()
     _pump()
+    long_path = '/' + '/'.join(f'directory-{i:03d}' for i in range(24)) + '/file.odt'
     page.store.append([None,
                        'an-extremely-long-filename-for-autofit-measurement.odt',
-                       '/home', '1 KB', 'Document', '2026-09-25', '/home'])
+                       long_path, '1 KB', 'Document', '2026-09-25', '/home'])
     _pump(0.2)
     name_col = page.view.get_column(0)
     before = name_col.get_width()
     auto_fit_column(name_col)
     _pump(0.2)
-    after = name_col.get_width()
-    assert after > before
-    assert after <= 400
+    assert name_col.get_width() > before
+    assert name_col.get_width() <= 1000
+    # Path column must also expand (operator report r016): long path content
+    path_col = page.view.get_column(1)
+    before_p = path_col.get_width()
+    auto_fit_column(path_col)
+    _pump(0.2)
+    assert path_col.get_width() > before_p
+
+
+def test_statusbar_above_results(tmp_path):
+    window = _build_window(tmp_path)
+    page = _find(window.content_area, 'SearchPage')[0]
+    children = page.get_children()
+    classes = []
+    for ch in children:
+        classes.append(tuple(ch.get_style_context().list_classes()))
+    status_idx = next(i for i, c in enumerate(classes) if 'status-bar' in c)
+    results_idx = next(i for i, ch in enumerate(children)
+                       if isinstance(ch, Gtk.Paned))
+    assert status_idx < results_idx, 'progress line must sit above the results'
+
+
+def test_history_fixed_widths(tmp_path):
+    window = _build_window(tmp_path)
+    page = _find(window.content_area, 'HistoryPage')[0]
+    widths = {c.get_title(): c.get_fixed_width()
+              for c in page.view.get_columns()}
+    assert widths['Time'] == 130
+    assert widths['Query'] == 420
+    assert widths['Scope'] == 280
+    assert widths['Mode'] == 150
 
 
 def test_bookmark_click_on_realized_view(tmp_path):

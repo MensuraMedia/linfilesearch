@@ -692,7 +692,8 @@ scale slider:hover {
 
 .status-bar {
     background-color: #313131;
-    border: 1px solid #1a1a1a;
+    border: none;
+    padding: 4px 8px;
 }
 
 .status-text {
@@ -805,10 +806,12 @@ scale slider:hover {
     margin-right: 4px;
 }
 
-/* spreadsheet header cells: clear full border (operator rule r011/r015) */
+/* spreadsheet header cells: subtle neutral border, >=4px padding all sides
+   (operator rule r016; #ccc removed pending header-border mockup pick) */
 .results-tree header button,
 .sheet-tree header button {
-    border: 1px solid #cccccc;
+    border: 1px solid #4a4a4a;
+    padding: 4px 6px;
 }
 
 /* logo wordmark below the 56px mark (r015) */
@@ -816,4 +819,17 @@ scale slider:hover {
     font-size: 9pt;
     letter-spacing: 1.5px;
     color: #bbbbbb;
+}
+
+/* selected row keeps its colour under the cursor (r016) */
+.results-tree row:hover,
+.sheet-tree row:hover {
+    background-color: #373737;
+}
+
+.results-tree row:selected,
+.results-tree row:selected:hover,
+.sheet-tree row:selected,
+.sheet-tree row:selected:hover {
+    background-color: #0078D7;
 }

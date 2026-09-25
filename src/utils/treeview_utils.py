@@ -13,7 +13,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
 EDGE_GRAB_PX = 6          # click within this many px of a column edge
-MAX_AUTOFIT_WIDTH = 400   # cap so a huge path cannot blow out the layout
+MAX_AUTOFIT_WIDTH = 1000  # cap: paths can be long; sheet scrolls horizontally
 MIN_AUTOFIT_WIDTH = 40
 
 
@@ -40,10 +40,30 @@ def _on_button_press(view, event):
 
 
 def _column_edge_at(view, x, y):
-    """Column whose RIGHT edge is within EDGE_GRAB_PX of x, or None."""
+    """Column whose RIGHT edge is within EDGE_GRAB_PX of x, or None.
+
+    Primary method: header-button allocations (exact, includes sort
+    indicators and any stretch the treeview applied). Fallback: accumulated
+    column widths.
+    """
     if view.get_path_at_pos(x, y) is None and \
             view.get_path_at_pos(max(0, x - EDGE_GRAB_PX), y) is None:
         return None
+
+    edges = []
+    for col in view.get_columns():
+        button = col.get_button()
+        alloc = button.get_allocation() if button is not None else None
+        if button is not None and alloc.width > 0:
+            edges.append(alloc.x + alloc.width)
+        else:
+            edges.append(None)
+    if all(e is not None for e in edges):
+        for col, edge in zip(view.get_columns(), edges):
+            if abs(x - edge) <= EDGE_GRAB_PX:
+                return col
+        return None
+
     x_off = 0
     for col in view.get_columns():
         width = col.get_width()

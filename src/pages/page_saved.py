@@ -58,11 +58,14 @@ class SavedPage(BasePage):
         self.trash_col.set_fixed_width(52)
         set_text_index(self.trash_col, None)
         self.view.append_column(self.trash_col)
-        for title, idx in (('Query', 1), ('Mode', 2), ('Case', 3),
-                           ('Scope', 4), ('Saved', 5)):
+        # fixed widths per operator reference screenshot (r016)
+        for title, idx, width in (('Query', 1, 420), ('Mode', 2, 150),
+                                  ('Case', 3, 60), ('Scope', 4, 280),
+                                  ('Saved', 5, 130)):
             renderer = Gtk.CellRendererText()
             renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             col = Gtk.TreeViewColumn(title, renderer, text=idx)
+            col.set_fixed_width(width)
             col.set_resizable(True)
             col.set_reorderable(True)
             col.set_sort_column_id(idx)

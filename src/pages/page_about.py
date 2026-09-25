@@ -1,51 +1,55 @@
 """
 About Page
-GTK information, platforms, and adoption
-Updated: Removed GTK Resources section
+linfilesearch application information: what it does, how it searches,
+credits and licensing. Margins match the other pages (r016).
 """
 
 from pages.page_base import BasePage
 
 
 class AboutPage(BasePage):
-    """About page with GTK information"""
-    
+    """About page for linfilesearch"""
+
+    def __init__(self):
+        super().__init__(spacing=12, margin=24)
+
     def build_content(self):
         """Build about page content"""
-        
-        # Page title
-        self.add_title("About GTK")
-        
-        # GTK overview
+
+        self.add_title("About linfilesearch")
+
         self.add_paragraph(
-            "GTK (formerly GIMP Toolkit) is a free and open-source cross-platform widget toolkit "
-            "for creating graphical user interfaces. Originally developed for the GIMP image editor, "
-            "GTK has evolved into one of the most popular GUI toolkits for Linux desktop applications."
+            "linfilesearch is a native Linux desktop file-search utility built with "
+            "GTK 3 and Python. It searches every mounted filesystem — the system root, "
+            "the home partition, permanently mounted data disks, and externally "
+            "attached USB drives — without an index, streaming results live with "
+            "pause and stop control."
         )
-        
-        # Platform support section
-        self.add_subtitle("Platform Support")
-        
+
+        self.add_subtitle("How it searches")
+
         self.add_paragraph(
-            "GTK applications run natively on:\n\n"
-            "• Linux (primary platform)\n"
-            "• BSD variants (FreeBSD, OpenBSD, NetBSD)\n"
-            "• Windows (via MinGW or MSYS2)\n"
-            "• macOS (via Homebrew or MacPorts)\n\n"
-            "PyGObject provides Python bindings for GTK, enabling rapid development "
-            "with Python's simplicity and GTK's native performance."
+            "Name matching supports three modes: plain substring, wildcards "
+            "(* ? [ ], find -name semantics), and regular expressions, each with an "
+            "optional case-sensitivity toggle. One worker thread scans each selected "
+            "mountpoint and stays on its own device, so nested mounts never produce "
+            "duplicate results. Pseudo-filesystems (/proc, /sys, snap images) are "
+            "excluded automatically; plug or unplug a drive and the scope list "
+            "updates on its own."
         )
-        
-        # Popularity section
-        self.add_subtitle("Adoption & Ecosystem")
-        
+
+        self.add_subtitle("Credits")
+
         self.add_paragraph(
-            "GTK powers many popular Linux desktop applications including:\n\n"
-            "• GNOME Desktop Environment\n"
-            "• GIMP (GNU Image Manipulation Program)\n"
-            "• Inkscape (Vector Graphics Editor)\n"
-            "• Transmission (BitTorrent Client)\n"
-            "• Audacity (Audio Editor)\n"
-            "• FileZilla (FTP Client)\n"
-            "• Many file managers, media players, and system utilities"
+            "Built on the gtk-python-dashboard-starter template by mikesdatawork. "
+            "Interface icons: Phosphor Icons (MIT License)."
+        )
+
+        self.add_subtitle("License")
+
+        self.add_paragraph(
+            "Copyright (c) 2026 MensuraMedia. Licensed under the Creative Commons "
+            "Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0): free "
+            "to use, copy, modify, and distribute with attribution; commercial use "
+            "is prohibited without prior permission from the author."
         )

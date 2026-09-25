@@ -67,8 +67,10 @@ class SearchPage(BasePage):
         self.get_style_context().add_class('search-page')
         self.build_search_row()
         self.build_toolbar()
-        self.build_results_area()
+        # progress line sits ABOVE the results (operator rule r016), evenly
+        # spaced between the mountpoint chips row and the spreadsheet
         self.build_statusbar()
+        self.build_results_area()
 
         self.mounts.on_change(self._on_mounts_changed)
         self.populate_scope_chips()
@@ -292,12 +294,11 @@ class SearchPage(BasePage):
         return pane
 
     def build_statusbar(self):
-        bar = Gtk.Box(spacing=16, margin=8)
+        bar = Gtk.Box(spacing=16)
         bar.get_style_context().add_class('status-bar')
         self.status_spinner = Gtk.Spinner()
         bar.pack_start(self.status_spinner, False, False, 0)
         self.status_scan = Gtk.Label(label='Ready.')
-        self.status_scan.get_style_context().add_class('status-text')
         bar.pack_start(self.status_scan, False, False, 0)
         self.status_matches = Gtk.Label(label='')
         bar.pack_start(self.status_matches, False, False, 0)
@@ -306,7 +307,8 @@ class SearchPage(BasePage):
         bar.pack_start(spacer, True, True, 0)
         self.status_time = Gtk.Label(label='')
         bar.pack_start(self.status_time, False, False, 0)
-        bar.pack_start(get_image(ICONS['clock'], 12), False, False, 0)
+        for label in (self.status_scan, self.status_matches, self.status_time):
+            label.get_style_context().add_class('status-text')
         self.pack_start(bar, False, False, 0)
 
     # ------------------------------------------------------- scope chips
