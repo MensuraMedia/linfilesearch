@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mockup C — Dual Pane + Preview</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; padding:24px; display:flex; justify-content:center; }
+  .ic { filter:invert(1); opacity:.85; display:inline-block; vertical-align:middle; }
+  .window { width:1200px; max-width:100%; background:#2d2d2d; color:#eee; border:1px solid #000; display:flex; flex-direction:column; }
+  .titlebar { display:flex; align-items:center; justify-content:space-between; background:#222; color:#ccc; font-size:13px; padding:6px 10px; border-bottom:1px solid #1a1a1a; }
+  .winbtns { display:flex; gap:8px; }
+  .winbtns span { width:12px; height:12px; border-radius:50%; background:#555; }
+  .body { display:flex; min-height:700px; }
+
+  /* locations rail */
+  .rail { width:230px; background:#353535; border-right:1px solid #1a1a1a; padding:14px 0; display:flex; flex-direction:column; }
+  .rail h3 { font-size:11px; letter-spacing:1px; color:#888; text-transform:uppercase; padding:0 14px 8px; }
+  .loc { display:flex; align-items:center; gap:9px; padding:8px 14px; font-size:13px; color:#ddd; cursor:pointer; border-left:3px solid transparent; }
+  .loc:hover { background:#3d3d3d; }
+  .loc.on { background:#0078D7; color:#fff; border-left-color:#4aa8ff; }
+  .loc .ic { width:16px; height:16px; flex:none; }
+  .loc .nm { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .loc .cap { display:block; font-size:10px; color:#888; margin-top:2px; }
+  .loc.on .cap { color:#cfe6fb; }
+  .bar { height:3px; background:#1f1f1f; margin-top:5px; border-radius:2px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:#0078D7; }
+  .loc .eject { opacity:.35; width:14px; height:14px; }
+  .loc:hover .eject { opacity:.8; }
+  .rail .foot { margin-top:auto; padding:10px 14px 0; border-top:1px solid #1a1a1a; font-size:11px; color:#777; display:flex; gap:8px; align-items:center; }
+  .rail .foot .ic { width:13px; height:13px; }
+  .dim { opacity:.45; }
+
+  /* center */
+  .center { flex:1; display:flex; flex-direction:column; }
+  .searchbar { display:flex; gap:8px; padding:12px 14px; border-bottom:1px solid #1a1a1a; align-items:center; }
+  .entry { flex:1; display:flex; align-items:center; gap:10px; background:#262626; border:1px solid #1a1a1a; padding:0 12px; }
+  .entry input { flex:1; background:none; border:none; color:#eee; font-size:14px; outline:none; padding:8px 0; }
+  .entry input::placeholder { color:#777; }
+  .modes { display:flex; }
+  .mode { display:flex; align-items:center; padding:0 10px; background:#353535; border:1px solid #1a1a1a; border-left:none; color:#bbb; font-size:12px; gap:6px; height:36px; cursor:pointer; }
+  .mode:first-child { border-left:1px solid #1a1a1a; }
+  .mode.on { background:#0078D7; color:#fff; }
+  .mode .ic { width:14px; height:14px; }
+  .btn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; background:#353535; border:1px solid #1a1a1a; color:#eee; cursor:pointer; }
+  .btn:hover { background:#404040; }
+  .btn.primary { background:#0078D7; border-color:#0078D7; width:auto; padding:0 14px; }
+  .btn .ic { width:15px; height:15px; }
+
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead th { text-align:left; color:#aaa; font-weight:normal; padding:8px 12px; border-bottom:1px solid #1a1a1a; background:#313131; position:sticky; }
+  thead th .ic { width:11px; height:11px; opacity:.6; }
+  tbody td { padding:7px 12px; border-bottom:1px solid #262626; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px; }
+  tbody tr:hover { background:#373737; }
+  tbody tr.sel { background:#0078D7; }
+  tbody tr.sel td { color:#fff; }
+  td .ic { width:15px; height:15px; margin-right:8px; }
+  td.size, td.date { color:#999; font-variant-numeric:tabular-nums; }
+  tr.sel td.size, tr.sel td.date { color:#cfe6fb; }
+  .results { flex:1; overflow:hidden; }
+
+  .statusbar { display:flex; align-items:center; gap:14px; background:#313131; border-top:1px solid #1a1a1a; padding:6px 12px; font-size:12px; color:#bbb; }
+  .statusbar .ic { width:13px; height:13px; }
+  .spin { animation:spin 1.2s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .mono { font-variant-numeric:tabular-nums; }
+  .warn { color:#e8c268; display:flex; gap:5px; align-items:center; }
+  .statusbar .right { margin-left:auto; }
+
+  /* preview pane */
+  .preview { width:290px; border-left:1px solid #1a1a1a; background:#303030; display:flex; flex-direction:column; }
+  .pv-head { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid #1a1a1a; font-size:12px; color:#999; }
+  .pv-head .ic { width:14px; height:14px; }
+  .pv-head .grow { flex:1; }
+  .pv-icon { display:flex; flex-direction:column; align-items:center; gap:12px; padding:28px 14px 18px; }
+  .pv-icon img.big { width:64px; height:64px; filter:invert(1); opacity:.9; }
+  .pv-icon .fname { font-size:14px; color:#fff; text-align:center; word-break:break-all; }
+  .pv-icon .ftype { font-size:11px; color:#888; }
+  .props { padding:0 14px; font-size:12px; }
+  .props .row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #262626; color:#ddd; }
+  .props .row span:first-child { color:#888; }
+  .snippet { margin:12px 14px; background:#262626; border:1px solid #1a1a1a; padding:10px; font-family:'Ubuntu Mono', monospace; font-size:11px; color:#9c9c9c; line-height:1.5; }
+  .snippet mark { background:#0d4f8a; color:#fff; padding:0 2px; }
+  .pv-actions { margin-top:auto; display:flex; border-top:1px solid #1a1a1a; }
+  .pv-actions .act { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 0 12px; font-size:10px; color:#bbb; cursor:pointer; }
+  .pv-actions .act:hover { background:#373737; color:#fff; }
+  .pv-actions .act .ic { width:16px; height:16px; }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar"><span>linfilesearch — Search all mountpoints</span>
+    <div class="winbtns"><span></span><span></span><span></span></div></div>
+  <div class="body">
+
+    <div class="rail">
+      <h3>Locations</h3>
+      <div class="loc on">
+        <img class="ic" src="../../resources/icons/regular/hard-drives.svg">
+        <div class="nm">All mountpoints<span class="cap">4 locations</span></div>
+      </div>
+      <div class="loc">
+        <img class="ic" src="../../resources/icons/regular/hard-drive.svg">
+        <div class="nm">/ <span style="color:#666;font-size:10px">nvme0n1p2</span><span class="cap">58G free of 98G</span><div class="bar"><i style="width:41%"></i></div></div>
+        <img class="ic eject" src="../../resources/icons/regular/eject.svg">
+      </div>
+      <div class="loc">
+        <img class="ic" src="../../resources/icons/regular/hard-drive.svg">
+        <div class="nm">/home <span style="color:#666;font-size:10px">nvme0n1p3</span><span class="cap">811G free of 1.7T</span><div class="bar"><i style="width:53%"></i></div></div>
+        <img class="ic eject" src="../../resources/icons/regular/eject.svg">
+      </div>
+      <div class="loc">
+        <img class="ic" src="../../resources/icons/regular/usb.svg">
+        <div class="nm">/mnt/data <span style="color:#666;font-size:10px">sda1</span><span class="cap">401G free of 916G</span><div class="bar"><i style="width:56%"></i></div></div>
+        <img class="ic eject" src="../../resources/icons/regular/eject.svg">
+      </div>
+      <div class="loc dim">
+        <img class="ic" src="../../resources/icons/regular/plus-circle.svg">
+        <div class="nm">Add folder…</div>
+      </div>
+      <div class="foot">
+        <img class="ic" src="../../resources/icons/regular/database.svg">
+        No index — live scan
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="searchbar">
+        <div class="entry">
+          <img class="ic" style="width:15px;height:15px;opacity:.5" src="../../resources/icons/regular/magnifying-glass.svg">
+          <input placeholder="Search all mountpoints — name or contents">
+        </div>
+        <div class="modes">
+          <div class="mode" title="Match case"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+          <div class="mode on" title="Wildcard"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+          <div class="mode" title="Regex"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+        </div>
+        <button class="btn" title="Filters"><img class="ic" src="../../resources/icons/regular/funnel.svg"></button>
+        <button class="btn" title="Pause"><img class="ic" src="../../resources/icons/regular/pause-circle.svg"></button>
+        <button class="btn" title="Stop"><img class="ic" src="../../resources/icons/regular/stop-circle.svg"></button>
+        <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+      </div>
+
+      <div class="results">
+        <table>
+          <thead><tr>
+            <th><img class="ic" src="../../resources/icons/regular/sort-ascending.svg"> Name</th>
+            <th>Path</th><th style="width:80px">Size</th><th style="width:110px">Modified</th>
+          </tr></thead>
+          <tbody>
+            <tr class="sel">
+              <td><img class="ic" src="../../resources/icons/regular/file-text.svg">q3-financial-report.odt</td>
+              <td>/home/user/Documents/finance/2026</td><td class="size">2.4 MB</td><td class="date">2026-09-18</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/file-text.svg">q3-financial-report-draft.odt</td>
+              <td>/home/user/Documents/finance/2026/old</td><td class="size">1.9 MB</td><td class="date">2026-09-02</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/file-pdf.svg">annual-report-2025.pdf</td>
+              <td>/mnt/data/archive/reports</td><td class="size">8.1 MB</td><td class="date">2026-01-30</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/folder.svg">report-templates</td>
+              <td>/home/user/Documents</td><td class="size">—</td><td class="date">2026-08-11</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/file-zip.svg">reports-backup-2025.tar.gz</td>
+              <td>/mnt/data/backups</td><td class="size">3.2 GB</td><td class="date">2026-01-02</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/image.svg">report-cover.png</td>
+              <td>/home/user/Pictures/work</td><td class="size">640 KB</td><td class="date">2026-09-18</td></tr>
+            <tr>
+              <td><img class="ic" src="../../resources/icons/regular/file-code.svg">report_gen.py</td>
+              <td>/home/user/projects/reporting</td><td class="size">14 KB</td><td class="date">2026-07-22</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="statusbar">
+        <img class="ic spin" src="../../resources/icons/regular/spinner-gap.svg">
+        <span>Scanning <span class="mono">/mnt/data</span> — <span class="mono">38,412</span> dirs</span>
+        <span class="mono">1,247 matches</span>
+        <div class="right">
+          <span class="warn"><img class="ic" src="../../resources/icons/regular/warning.svg">3 skipped</span>
+          <span class="mono">00:04</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview">
+      <div class="pv-head">
+        <img class="ic" src="../../resources/icons/regular/eye.svg"> Preview
+        <div class="grow"></div>
+        <img class="ic" style="opacity:.5;cursor:pointer" src="../../resources/icons/regular/x.svg">
+      </div>
+      <div class="pv-icon">
+        <img class="big" src="../../resources/icons/regular/file-text.svg">
+        <div class="fname">q3-financial-report.odt</div>
+        <div class="ftype">OpenDocument Text</div>
+      </div>
+      <div class="props">
+        <div class="row"><span>Size</span><span>2.4 MB (2,516,383)</span></div>
+        <div class="row"><span>Modified</span><span>2026-09-18 14:32</span></div>
+        <div class="row"><span>Location</span><span>/home/user/Documents/finance/2026</span></div>
+        <div class="row"><span>Mountpoint</span><span>/home (nvme0n1p3)</span></div>
+      </div>
+      <div class="snippet">…revenue for Q3 exceeded plan by <mark>12%</mark>, driven mainly by the
+mid-market segment. The <mark>report</mark> below summarises variances
+by region and product line. See appendix B for the
+consolidated <mark>financial-report</mark> tables…
+</div>
+      <div class="pv-actions">
+        <div class="act"><img class="ic" src="../../resources/icons/regular/arrow-square-out.svg">Open</div>
+        <div class="act"><img class="ic" src="../../resources/icons/regular/folder-open.svg">Show in folder</div>
+        <div class="act"><img class="ic" src="../../resources/icons/regular/copy.svg">Copy path</div>
+        <div class="act"><img class="ic" src="../../resources/icons/regular/trash.svg">Delete</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

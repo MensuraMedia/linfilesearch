@@ -1,0 +1,8 @@
+*.bak
+*.bak.*
+.DS_Store
+*.tar.gz
+backups/
+backup-log.md
+.v2c/
+.video_agent/

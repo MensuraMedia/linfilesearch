@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mockup B — Compact Utility</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; padding:24px; display:flex; justify-content:center; }
+  .ic { filter:invert(1); opacity:.85; display:inline-block; vertical-align:middle; }
+  .window { width:940px; max-width:100%; background:#2d2d2d; color:#eee; border:1px solid #000; display:flex; flex-direction:column; }
+  .titlebar { display:flex; align-items:center; gap:10px; background:#222; color:#ccc; font-size:13px; padding:6px 10px; border-bottom:1px solid #1a1a1a; }
+  .winbtns { margin-left:auto; display:flex; gap:8px; }
+  .winbtns span { width:12px; height:12px; border-radius:50%; background:#555; }
+
+  /* toolbar row 1 */
+  .t1 { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid #1a1a1a; }
+  .applogo { width:26px; height:26px; filter:invert(27%) sepia(96%) saturate(1400%) hue-rotate(197deg) brightness(96%); }
+  .entry { flex:1; display:flex; align-items:center; gap:10px; background:#262626; border:1px solid #1a1a1a; padding:0 12px; }
+  .entry input { flex:1; background:none; border:none; color:#eee; font-size:15px; outline:none; padding:9px 0; }
+  .entry input::placeholder { color:#777; }
+  .modes { display:flex; }
+  .mode { display:flex; align-items:center; padding:0 10px; background:#353535; border:1px solid #1a1a1a; border-left:none; color:#bbb; font-size:12px; gap:6px; cursor:pointer; height:38px; }
+  .mode:first-child { border-left:1px solid #1a1a1a; }
+  .mode.on { background:#0078D7; color:#fff; }
+  .mode .ic { width:15px; height:15px; }
+  .btn { display:flex; align-items:center; gap:8px; padding:0 14px; height:38px; background:#353535; border:1px solid #1a1a1a; color:#eee; font-size:14px; cursor:pointer; }
+  .btn:hover { background:#404040; }
+  .btn.primary { background:#0078D7; border-color:#0078D7; color:#fff; font-weight:bold; }
+  .btn .ic { width:15px; height:15px; }
+
+  /* toolbar row 2 */
+  .t2 { display:flex; align-items:center; gap:6px; padding:8px 12px; border-bottom:1px solid #1a1a1a; background:#313131; }
+  .chip { display:flex; align-items:center; gap:6px; background:#262626; border:1px solid #1a1a1a; padding:5px 10px; font-size:12px; color:#ddd; cursor:pointer; }
+  .chip:hover { background:#333; }
+  .chip .ic { width:14px; height:14px; }
+  .chip b { color:#9cd0ff; font-weight:normal; }
+  .chip .x { opacity:.5; margin-left:2px; }
+  .t2 .grow { flex:1; }
+  .viewtoggle { display:flex; }
+  .tool { display:flex; align-items:center; justify-content:center; width:30px; height:27px; background:#262626; border:1px solid #1a1a1a; border-left:none; cursor:pointer; }
+  .tool:first-child { border-left:1px solid #1a1a1a; }
+  .tool:hover { background:#333; }
+  .tool.on { background:#0078D7; }
+  .tool .ic { width:15px; height:15px; }
+
+  /* dense two-line rows */
+  .rows { flex:1; min-height:560px; }
+  .row { display:flex; align-items:center; gap:12px; padding:8px 14px; border-bottom:1px solid #262626; cursor:pointer; }
+  .row:hover { background:#373737; }
+  .row.sel { background:#0078D7; }
+  .row.sel .name, .row.sel .path, .row.sel .meta { color:#fff; }
+  .row .ic { width:18px; height:18px; flex:none; }
+  .row .mid { flex:1; min-width:0; }
+  .name { font-size:14px; color:#eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .path { font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row.sel .path { color:#cfe6fb; }
+  .meta { font-size:12px; color:#999; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .row.sel .meta { color:#cfe6fb; }
+  .mount { font-size:10px; padding:2px 6px; border:1px solid #1a1a1a; color:#9cd0ff; background:#262626; border-radius:2px; }
+
+  .statusbar { display:flex; align-items:center; gap:14px; background:#313131; border-top:1px solid #1a1a1a; padding:6px 12px; font-size:12px; color:#bbb; }
+  .statusbar .ic { width:13px; height:13px; }
+  .statusbar .right { margin-left:auto; display:flex; gap:14px; align-items:center; }
+  .spin { animation:spin 1.2s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .mono { font-variant-numeric:tabular-nums; }
+  .warn { color:#e8c268; display:flex; gap:5px; align-items:center; }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <img class="ic" style="width:14px;height:14px;opacity:.6" src="../../resources/icons/regular/magnifying-glass.svg">
+    linfilesearch
+    <div class="winbtns"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="t1">
+    <img class="applogo" src="../../resources/icons/fill/magnifying-glass.svg">
+    <div class="entry">
+      <input placeholder="report*.odt">
+      <img class="ic" style="width:14px;height:14px;opacity:.4;cursor:pointer" src="../../resources/icons/regular/x.svg" title="Clear">
+    </div>
+    <div class="modes">
+      <div class="mode on" title="Match case"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+      <div class="mode" title="Wildcard mode"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+      <div class="mode" title="Regular expression mode"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+    </div>
+    <button class="btn"><img class="ic" src="../../resources/icons/regular/stop-circle.svg"></button>
+    <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+  </div>
+
+  <div class="t2">
+    <div class="chip"><img class="ic" src="../../resources/icons/regular/path.svg">Where: <b>All mountpoints (4)</b> <img class="ic x" src="../../resources/icons/regular/caret-down.svg"></div>
+    <div class="chip"><img class="ic" src="../../resources/icons/regular/funnel.svg">Type: <b>any</b> <img class="ic x" src="../../resources/icons/regular/caret-down.svg"></div>
+    <div class="chip"><img class="ic" src="../../resources/icons/regular/calendar-blank.svg">Modified: <b>any</b> <img class="ic x" src="../../resources/icons/regular/caret-down.svg"></div>
+    <div class="chip"><img class="ic" src="../../resources/icons/regular/sliders-horizontal.svg">Size: <b>any</b> <img class="ic x" src="../../resources/icons/regular/caret-down.svg"></div>
+    <div class="chip"><img class="ic" src="../../resources/icons/regular/x-circle.svg" title="Clear filters">Clear</div>
+    <div class="grow"></div>
+    <div class="viewtoggle">
+      <div class="tool on" title="List view"><img class="ic" src="../../resources/icons/regular/list-dashes.svg"></div>
+      <div class="tool" title="Grid view"><img class="ic" src="../../resources/icons/regular/squares-four.svg"></div>
+      <div class="tool" title="Preview"><img class="ic" src="../../resources/icons/regular/eye.svg"></div>
+    </div>
+  </div>
+
+  <div class="rows">
+    <div class="row sel">
+      <img class="ic" src="../../resources/icons/regular/file-text.svg">
+      <div class="mid"><div class="name">q3-financial-report.odt</div><div class="path">/home/user/Documents/finance/2026</div></div>
+      <div class="meta">2.4 MB<br>2026-09-18</div>
+      <span class="mount">/home</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/file-text.svg">
+      <div class="mid"><div class="name">q3-financial-report-draft.odt</div><div class="path">/home/user/Documents/finance/2026/old</div></div>
+      <div class="meta">1.9 MB<br>2026-09-02</div>
+      <span class="mount">/home</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/file-pdf.svg">
+      <div class="mid"><div class="name">annual-report-2025.pdf</div><div class="path">/mnt/data/archive/reports</div></div>
+      <div class="meta">8.1 MB<br>2026-01-30</div>
+      <span class="mount">/mnt/data</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/folder.svg">
+      <div class="mid"><div class="name">report-templates</div><div class="path">/home/user/Documents</div></div>
+      <div class="meta">—<br>2026-08-11</div>
+      <span class="mount">/home</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/file-zip.svg">
+      <div class="mid"><div class="name">reports-backup-2025.tar.gz</div><div class="path">/mnt/data/backups</div></div>
+      <div class="meta">3.2 GB<br>2026-01-02</div>
+      <span class="mount">/mnt/data</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/image.svg">
+      <div class="mid"><div class="name">report-cover.png</div><div class="path">/home/user/Pictures/work</div></div>
+      <div class="meta">640 KB<br>2026-09-18</div>
+      <span class="mount">/home</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/music-notes.svg">
+      <div class="mid"><div class="name">earnings-call-report.mp3</div><div class="path">/mnt/data/media/audio</div></div>
+      <div class="meta">41 MB<br>2026-02-14</div>
+      <span class="mount">/mnt/data</span>
+    </div>
+    <div class="row">
+      <img class="ic" src="../../resources/icons/regular/video-camera.svg">
+      <div class="mid"><div class="name">board-report-summary.mp4</div><div class="path">/home/user/Videos/work</div></div>
+      <div class="meta">220 MB<br>2026-03-01</div>
+      <span class="mount">/home</span>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <img class="ic spin" src="../../resources/icons/regular/spinner-gap.svg">
+    <span>Scanning <span class="mono">/mnt/data</span> — <span class="mono">38,412</span> dirs</span>
+    <span class="mono">1,247 matches</span>
+    <div class="right">
+      <span class="warn"><img class="ic" src="../../resources/icons/regular/warning.svg">3 skipped</span>
+      <span class="mono">00:04</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

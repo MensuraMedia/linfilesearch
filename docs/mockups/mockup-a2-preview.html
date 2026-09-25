@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mockup A2 — Dashboard Classic + Fold-out Preview</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; padding:24px; display:flex; justify-content:center; }
+  .ic { filter:invert(1); opacity:.85; display:inline-block; vertical-align:middle; }
+  .window { width:1200px; max-width:100%; background:#2d2d2d; color:#eee; border:1px solid #000; display:flex; flex-direction:column; }
+  .titlebar { display:flex; align-items:center; justify-content:space-between; background:#222; color:#ccc; font-size:13px; padding:6px 10px; border-bottom:1px solid #1a1a1a; }
+  .winbtns { display:flex; gap:8px; }
+  .winbtns span { width:12px; height:12px; border-radius:50%; background:#555; display:inline-block; }
+  .body { display:flex; min-height:720px; }
+
+  /* sidebar */
+  .sidebar { width:150px; background:#353535; border-right:1px solid #1a1a1a; display:flex; flex-direction:column; }
+  .logo-area { height:150px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; border-bottom:1px solid #1a1a1a; }
+  .logo-area .ic { filter:invert(27%) sepia(96%) saturate(1400%) hue-rotate(197deg) brightness(96%); }
+  .logo-cap { font-size:10px; letter-spacing:1.5px; color:#bbb; }
+  .nav { display:flex; flex-direction:column; }
+  .nav-button { display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:14px; color:#eee; border:none; border-bottom:1px solid #1a1a1a; cursor:pointer; }
+  .nav-button:hover { background:#404040; }
+  .nav-button.active { background:#0078D7; color:#fff; }
+  .nav-button .ic { width:16px; height:16px; }
+  .spacer { flex:1; }
+  .nav-bottom { border-top:1px solid #1a1a1a; border-bottom:none; }
+
+  /* content */
+  .content { flex:1; padding:36px 24px 30px 32px; display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .page-title { font-size:24px; font-weight:bold; color:#fff; }
+  .search-row { display:flex; gap:8px; align-items:stretch; }
+  .entry { flex:1; display:flex; align-items:center; gap:10px; background:#262626; border:1px solid #1a1a1a; padding:0 12px; min-width:0; }
+  .entry input { flex:1; background:none; border:none; color:#eee; font-size:15px; outline:none; padding:10px 0; min-width:0; }
+  .entry input::placeholder { color:#777; }
+  .modes { display:flex; flex:none; }
+  .mode { display:flex; align-items:center; padding:0 10px; background:#353535; border:1px solid #1a1a1a; border-left:none; color:#bbb; font-size:12px; gap:6px; cursor:pointer; }
+  .mode:first-child { border-left:1px solid #1a1a1a; }
+  .mode.on { background:#0078D7; color:#fff; }
+  .mode .ic { width:16px; height:16px; }
+  .btn { display:flex; align-items:center; gap:8px; padding:0 16px; background:#353535; border:1px solid #1a1a1a; color:#eee; font-size:14px; cursor:pointer; flex:none; }
+  .btn:hover { background:#404040; }
+  .btn.primary { background:#0078D7; border-color:#0078D7; color:#fff; font-weight:bold; }
+  .btn .ic { width:16px; height:16px; }
+
+  .toolbar { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chip { display:flex; align-items:center; gap:6px; background:#353535; border:1px solid #1a1a1a; padding:5px 10px; font-size:12px; color:#ddd; cursor:pointer; }
+  .chip:hover { background:#404040; }
+  .chip .ic { width:14px; height:14px; }
+  .chip.mount { color:#9cd0ff; }
+  .chip.mount .ic { opacity:1; }
+  .chip .x { margin-left:2px; opacity:.5; }
+  .toolgroup { display:flex; flex:none; }
+  .tool { display:flex; align-items:center; justify-content:center; width:34px; height:30px; background:#353535; border:1px solid #1a1a1a; border-left:none; cursor:pointer; }
+  .tool:first-child { border-left:1px solid #1a1a1a; }
+  .tool:hover { background:#404040; }
+  .tool.on { background:#0078D7; }
+  .tool .ic { width:16px; height:16px; }
+
+  .results { flex:1; border:1px solid #1a1a1a; display:flex; flex-direction:column; min-height:0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead th { text-align:left; color:#aaa; font-weight:normal; padding:8px 12px; border-bottom:1px solid #1a1a1a; background:#313131; }
+  thead th .ic { width:12px; height:12px; opacity:.6; }
+  tbody td { padding:7px 12px; border-bottom:1px solid #262626; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
+  tbody tr:hover { background:#373737; }
+  tbody tr.sel { background:#0078D7; }
+  tbody tr.sel td { color:#fff; }
+  td .ic { width:15px; height:15px; margin-right:8px; }
+  td.size, td.date { color:#999; font-variant-numeric:tabular-nums; }
+  tr.sel td.size, tr.sel td.date { color:#cfe6fb; }
+
+  .statusbar { display:flex; align-items:center; gap:16px; background:#313131; border:1px solid #1a1a1a; padding:7px 12px; font-size:12px; color:#bbb; }
+  .statusbar .ic { width:14px; height:14px; }
+  .statusbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; }
+  .spin { animation:spin 1.2s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .warn { color:#e8c268; display:flex; gap:6px; align-items:center; }
+  .mono { font-variant-numeric:tabular-nums; }
+
+  /* ---- fold-out preview pane ---- */
+  .main-area { flex:1; display:flex; min-width:0; }
+  .preview { width:290px; flex:none; border-left:1px solid #1a1a1a; background:#303030; display:flex; flex-direction:column; overflow:hidden; transition:width .25s ease; }
+  .window.pv-collapsed .preview { width:36px; border-left-color:#1a1a1a; }
+  .pv-head { display:flex; align-items:center; gap:8px; padding:10px 12px 10px 12px; margin-right:8px; border-bottom:1px solid #1a1a1a; font-size:12px; color:#999; white-space:nowrap; }
+  .window.pv-collapsed .pv-head { flex-direction:column; padding:10px 0; gap:8px; border-bottom:1px solid #1a1a1a; }
+  .pv-head .ic { width:14px; height:14px; }
+  .pv-head .grow { flex:1; }
+  .pv-head .fold { opacity:.5; cursor:pointer; }
+  .pv-head .fold:hover { opacity:1; }
+  .window.pv-collapsed .pv-head .label, .window.pv-collapsed .pv-head .grow, .window.pv-collapsed .pv-head .fold { display:none; }
+  .pv-inner { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .window.pv-collapsed .pv-inner { display:none; }
+  .pv-rail { display:none; }
+  .window.pv-collapsed .pv-rail { display:flex; flex-direction:column; align-items:center; gap:12px; padding-top:10px; cursor:pointer; }
+  .pv-rail .ic { width:16px; height:16px; opacity:.6; }
+  .pv-rail .vtext { writing-mode:vertical-rl; font-size:10px; letter-spacing:2px; color:#888; }
+  .pv-rail:hover .ic, .pv-rail:hover .vtext { opacity:1; color:#ddd; }
+  .pv-icon { display:flex; flex-direction:column; align-items:center; gap:12px; padding:24px 14px 16px; }
+  .pv-icon img.big { width:56px; height:56px; filter:invert(1); opacity:.9; }
+  .pv-icon .fname { font-size:14px; color:#fff; text-align:center; word-break:break-all; }
+  .pv-icon .ftype { font-size:11px; color:#888; }
+  .props { padding:0 14px; font-size:12px; }
+  .props .prow { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid #262626; color:#ddd; }
+  .props .prow span:first-child { color:#888; flex:none; }
+  .props .prow span:last-child { text-align:right; word-break:break-all; }
+  .snippet { margin:12px 14px; background:#262626; border:1px solid #1a1a1a; padding:10px; font-family:'Ubuntu Mono', monospace; font-size:11px; color:#9c9c9c; line-height:1.5; overflow:hidden; }
+  .snippet mark { background:#0d4f8a; color:#fff; padding:0 2px; }
+  .pv-actions { margin-top:auto; display:flex; border-top:1px solid #1a1a1a; }
+  .pv-actions .act { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 0 12px; font-size:10px; color:#bbb; cursor:pointer; }
+  .pv-actions .act:hover { background:#373737; color:#fff; }
+  .pv-actions .act .ic { width:16px; height:16px; }
+</style>
+</head>
+<body>
+<div class="window" id="win">
+  <div class="titlebar"><span>linfilesearch — All mountpoints</span>
+    <div class="winbtns"><span></span><span></span><span></span></div></div>
+  <div class="body">
+
+    <div class="sidebar">
+      <div class="logo-area">
+        <img class="ic" style="width:56px;height:56px" src="../../resources/icons/fill/magnifying-glass.svg">
+        <div class="logo-cap">LINFILESEARCH</div>
+      </div>
+      <div class="nav">
+        <div class="nav-button active"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</div>
+        <div class="nav-button"><img class="ic" src="../../resources/icons/regular/clock-counter-clockwise.svg">History</div>
+        <div class="nav-button"><img class="ic" src="../../resources/icons/regular/bookmark-simple.svg">Saved</div>
+        <div class="nav-button"><img class="ic" src="../../resources/icons/regular/info.svg">About</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="nav">
+        <div class="nav-button nav-bottom"><img class="ic" src="../../resources/icons/regular/gear-six.svg">Settings</div>
+      </div>
+    </div>
+
+    <div class="main-area">
+      <div class="content">
+        <div class="page-title">File Search</div>
+
+        <div class="search-row">
+          <div class="entry">
+            <img class="ic" style="width:16px;height:16px;opacity:.5" src="../../resources/icons/regular/magnifying-glass.svg">
+            <input placeholder="Search file names — try  report*.odt  or  meeting notes">
+          </div>
+          <div class="modes">
+            <div class="mode" title="Match case"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+            <div class="mode on" title="Wildcard mode"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+            <div class="mode" title="Regular expression mode"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+          </div>
+          <button class="btn"><img class="ic" src="../../resources/icons/regular/pause-circle.svg"></button>
+          <button class="btn"><img class="ic" src="../../resources/icons/regular/stop-circle.svg"></button>
+          <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="chips">
+            <div class="chip"><img class="ic" src="../../resources/icons/regular/path.svg">Scope: All mountpoints (4) <img class="ic x" src="../../resources/icons/regular/caret-down.svg"></div>
+            <div class="chip mount"><img class="ic" src="../../resources/icons/regular/hard-drive.svg">/ <span style="opacity:.6">98G</span></div>
+            <div class="chip mount"><img class="ic" src="../../resources/icons/regular/hard-drive.svg">/home <span style="opacity:.6">1.7T</span></div>
+            <div class="chip mount"><img class="ic" src="../../resources/icons/regular/usb.svg">/mnt/data <span style="opacity:.6">916G</span></div>
+            <div class="chip"><img class="ic" src="../../resources/icons/regular/plus-circle.svg">Add folder</div>
+          </div>
+          <div class="toolgroup">
+            <div class="tool" title="Filters"><img class="ic" src="../../resources/icons/regular/funnel.svg"></div>
+            <div class="tool" title="Advanced options"><img class="ic" src="../../resources/icons/regular/sliders-horizontal.svg"></div>
+            <div class="tool on" title="List view"><img class="ic" src="../../resources/icons/regular/list-dashes.svg"></div>
+            <div class="tool" title="Grid view"><img class="ic" src="../../resources/icons/regular/squares-four.svg"></div>
+            <div class="tool on" id="eyeTool" title="Preview (fold out)"><img class="ic" src="../../resources/icons/regular/eye.svg"></div>
+            <div class="tool" title="Refresh mounts"><img class="ic" src="../../resources/icons/regular/arrow-clockwise.svg"></div>
+          </div>
+        </div>
+
+        <div class="results">
+          <table>
+            <thead><tr>
+              <th style="width:32%"><img class="ic" src="../../resources/icons/regular/sort-ascending.svg"> Name</th>
+              <th>Path</th><th style="width:70px">Size</th><th style="width:95px">Type</th><th style="width:105px">Modified</th>
+            </tr></thead>
+            <tbody>
+              <tr class="sel">
+                <td><img class="ic" src="../../resources/icons/regular/file-text.svg">q3-financial-report.odt</td>
+                <td>/home/user/Documents/finance/2026</td><td class="size">2.4 MB</td><td>Document</td><td class="date">2026-09-18</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/file-text.svg">q3-financial-report-draft.odt</td>
+                <td>/home/user/Documents/finance/2026/old</td><td class="size">1.9 MB</td><td>Document</td><td class="date">2026-09-02</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/file-pdf.svg">annual-report-2025.pdf</td>
+                <td>/mnt/data/archive/reports</td><td class="size">8.1 MB</td><td>PDF</td><td class="date">2026-01-30</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/folder.svg">report-templates</td>
+                <td>/home/user/Documents</td><td class="size">—</td><td>Folder</td><td class="date">2026-08-11</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/file-zip.svg">reports-backup-2025.tar.gz</td>
+                <td>/mnt/data/backups</td><td class="size">3.2 GB</td><td>Archive</td><td class="date">2026-01-02</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/image.svg">report-cover.png</td>
+                <td>/home/user/Pictures/work</td><td class="size">640 KB</td><td>Image</td><td class="date">2026-09-18</td></tr>
+              <tr>
+                <td><img class="ic" src="../../resources/icons/regular/file-code.svg">report_gen.py</td>
+                <td>/home/user/projects/reporting</td><td class="size">14 KB</td><td>Source</td><td class="date">2026-07-22</td></tr>
+              <tr style="color:#666">
+                <td><img class="ic" src="../../resources/icons/regular/lock.svg">board-report-confidential.docx</td>
+                <td>/root/docs (no access)</td><td class="size">?</td><td>—</td><td class="date">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="statusbar">
+          <img class="ic spin" src="../../resources/icons/regular/spinner-gap.svg">
+          <span>Scanning <span class="mono">/mnt/data</span>… <span class="mono">38,412</span> dirs visited</span>
+          <span class="mono">1,247 matches</span>
+          <div class="right">
+            <span class="warn"><img class="ic" src="../../resources/icons/regular/warning.svg">3 skipped (permissions)</span>
+            <span class="mono">00:04</span>
+            <img class="ic" src="../../resources/icons/regular/clock.svg" style="opacity:.5">
+          </div>
+        </div>
+      </div>
+
+      <!-- fold-out preview -->
+      <div class="preview" id="pv">
+        <div class="pv-head">
+          <img class="ic" src="../../resources/icons/regular/eye.svg"><span class="label">Preview</span>
+          <div class="grow"></div>
+          <img class="ic fold" id="pvFold" src="../../resources/icons/regular/caret-right.svg" title="Collapse (keep eye tool toggled too)">
+        </div>
+        <div class="pv-rail" id="pvRail" title="Expand preview">
+          <img class="ic" src="../../resources/icons/regular/eye.svg">
+          <span class="vtext">PREVIEW</span>
+        </div>
+        <div class="pv-inner">
+          <div class="pv-icon">
+            <img class="big" src="../../resources/icons/regular/file-text.svg">
+            <div class="fname">q3-financial-report.odt</div>
+            <div class="ftype">OpenDocument Text</div>
+          </div>
+          <div class="props">
+            <div class="prow"><span>Size</span><span>2.4 MB (2,516,383)</span></div>
+            <div class="prow"><span>Modified</span><span>2026-09-18 14:32</span></div>
+            <div class="prow"><span>Location</span><span>/home/user/Documents/finance/2026</span></div>
+            <div class="prow"><span>Mountpoint</span><span>/home (nvme0n1p3)</span></div>
+          </div>
+          <div class="snippet">…revenue for Q3 exceeded plan by <mark>12%</mark>, driven mainly by the
+mid-market segment. The <mark>report</mark> below summarises variances
+by region and product line. See appendix B for the
+consolidated <mark>financial-report</mark> tables…</div>
+          <div class="pv-actions">
+            <div class="act"><img class="ic" src="../../resources/icons/regular/arrow-square-out.svg">Open</div>
+            <div class="act"><img class="ic" src="../../resources/icons/regular/folder-open.svg">Show in folder</div>
+            <div class="act"><img class="ic" src="../../resources/icons/regular/copy.svg">Copy path</div>
+            <div class="act"><img class="ic" src="../../resources/icons/regular/trash.svg">Delete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+  const win = document.getElementById('win');
+  const toggle = () => win.classList.toggle('pv-collapsed');
+  document.getElementById('pvFold').addEventListener('click', toggle);
+  document.getElementById('pvRail').addEventListener('click', toggle);
+  document.getElementById('eyeTool').addEventListener('click', toggle);
+  if (location.hash === '#collapsed') win.classList.add('pv-collapsed');
+</script>
+</body>
+</html>

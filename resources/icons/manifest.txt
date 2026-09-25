@@ -1,0 +1,58 @@
+linfilesearch icon subset — Phosphor (MIT), from ~/projects/assets/icons
+copied: 2026-09-25T11:17:03-04:00
+note: fill weight files are stored here under the plain name (suffix stripped)
+
+ICON                     PLANNED USE
+magnifying-glass         search / run query
+x                        clear query / close panel
+x-circle                 clear all active filters
+stop-circle              stop search
+pause-circle             pause search
+play                     resume search
+arrow-clockwise          restart search / refresh mounts
+spinner-gap              search in progress
+funnel                   filters popover
+sliders-horizontal       advanced search options
+text-aa                  case sensitivity toggle
+asterisk                 wildcard mode toggle
+brackets-curly           regular-expression mode toggle
+calendar-blank           date modified filter
+clock                    elapsed time / time filter
+database                 indexed locations (future)
+hard-drives              all mountpoints scope
+hard-drive               internal drive mountpoint
+usb                      external usb drive mountpoint
+network                  network mountpoint
+eject                    unmount drive
+path                     path scope picker
+folder-open              open containing folder
+folder                   folder result row
+folder-simple            folder type chip
+file                     generic file result row
+file-text                text file
+file-pdf                 pdf file
+file-zip                 archive file
+file-code                source code file
+image                    image file
+music-notes              audio file
+video-camera             video file
+list-dashes              results list view
+squares-four             results grid view
+sort-ascending           sort column ascending
+sort-descending          sort column descending
+eye                      preview pane toggle
+copy                     copy path
+trash                    delete to trash
+info                     file properties / about
+warning                  permission or access warning
+warning-circle           row-level access error
+check-circle             search complete
+lock                     unreadable location
+clock-counter-clockwise  search history
+bookmark-simple          saved searches
+gear-six                 settings page
+caret-down               dropdown expand
+caret-right              disclosure / expand row
+arrow-square-out         open file with default app
+plus-circle              add location to scope
+minus-circle             remove location from scope

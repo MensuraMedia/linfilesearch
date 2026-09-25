@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>linfilesearch — mockup review</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; color:#eee; padding:28px; }
+  h1 { font-size:22px; margin-bottom:4px; }
+  .sub { color:#999; font-size:13px; margin-bottom:22px; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:22px; }
+  .card { background:#2d2d2d; border:1px solid #000; }
+  .card img { width:100%; display:block; }
+  .cap { padding:12px 14px; border-top:1px solid #1a1a1a; }
+  .cap b { font-size:15px; }
+  .cap p { font-size:12px; color:#aaa; margin-top:4px; line-height:1.5; }
+  .cap a { color:#4aa3e8; text-decoration:none; font-size:12px; }
+  .cap .chips { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+  .tag { font-size:10px; border:1px solid #1a1a1a; background:#353535; color:#bbb; padding:2px 8px; }
+  .tag.win { border-color:#0078D7; color:#9cd0ff; }
+</style>
+</head>
+<body>
+<h1>linfilesearch — UI mockup review</h1>
+<div class="sub">Three layout directions on the starter's dark palette (#2d2d2d / #353535 / accent #0078D7) with the real
+53-icon Phosphor subset from resources/icons/. Baseline at the bottom: the live gtk-python-dashboard-starter window.</div>
+
+<div class="cols">
+  <div class="card">
+    <img src="mockup-a.png" alt="Mockup A">
+    <div class="cap">
+      <b>A — Dashboard Classic</b> <a href="mockup-a-dashboard.html">open interactive →</a>
+      <p>Starter-faithful: 150px icon sidebar (Search / History / Saved / Settings), full search page with mode
+      toggles (Aa&nbsp;*&nbsp;.*), scope chips per mountpoint, sortable results table with type icons, streaming
+      status bar.</p>
+      <div class="chips"><span class="tag win">maximal starter fidelity</span><span class="tag">room to grow pages</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="mockup-a2.png" alt="Mockup A2 — chosen direction">
+    <div class="cap">
+      <b>A+ — Dashboard + Fold-out Preview</b> <a href="mockup-a2-preview.html">open interactive →</a>
+      <p><b>Chosen direction (operator, r004).</b> Mockup A with a collapsible right preview pane: file metadata,
+      snippet preview with match highlighting, and actions. Folds to a 36px rail (eye icon) — the interactive page
+      toggles via the eye tool, the rail, or the header caret; <a href="mockup-a2-preview.html#collapsed">collapsed
+      state</a> also loads directly.</p>
+      <div class="chips"><span class="tag win">primary layout</span><span class="tag">preview folds out</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="mockup-b.png" alt="Mockup B">
+    <div class="cap">
+      <b>B — Compact Utility</b> <a href="mockup-b-compact.html">open interactive →</a>
+      <p>Chrome-less single-toolbar tool: query + modes + actions in one row, filter chips below, dense two-line
+      result rows with mount badges. Fast to read, small window, least starter code reuse.</p>
+      <div class="chips"><span class="tag win">densest results</span><span class="tag">smallest footprint</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="mockup-c.png" alt="Mockup C">
+    <div class="cap">
+      <b>C — Dual Pane + Preview</b> <a href="mockup-c-preview.html">open interactive →</a>
+      <p>Locations rail with per-mount capacity bars and eject buttons (hard-drive / usb / network icons),
+      center results, right preview pane with metadata, snippet preview and file actions.</p>
+      <div class="chips"><span class="tag win">best mount visibility</span><span class="tag">file inspection built in</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="starter-live.png" alt="Live starter baseline">
+    <div class="cap">
+      <b>Baseline — live starter app</b>
+      <p>gtk-python-dashboard-starter running from this project (python3 src/main.py, X11). The mockups keep its
+      flat dark look and single blue accent, adding Phosphor icon tool buttons.</p>
+      <div class="chips"><span class="tag">reference</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
