@@ -801,3 +801,14 @@ scale slider:hover {
     margin-left: 4px;
     margin-right: 4px;
 }
+
+/* spreadsheet header cell borders (operator rule r011) */
+.results-tree header button,
+.sheet-tree header button {
+    border-right: 1px solid #1a1a1a;
+}
+
+.results-tree header button:last-child,
+.sheet-tree header button:last-child {
+    border-right: none;
+}

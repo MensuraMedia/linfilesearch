@@ -18,17 +18,20 @@ from config.config_search import (
     ICONS, MODE_SUBSTRING, MODE_WILDCARD, MODE_REGEX, DEFAULTS,
     file_type_info, TEXT_EXTS)
 from utils.icon_loader import get_icon, get_image, MOUNT_TINT, ACCENT_TINT
+from utils.treeview_utils import attach_spreadsheet_behavior, set_text_index
+from utils.preview import preview_for
 from config.config_layout import Layout
 
 BUTTON_ICON_SIZE = Layout.dimensions.MAIN_BUTTON_ICON_SIZE
 BUTTON_MAX_H = Layout.dimensions.MAIN_BUTTON_MAX_HEIGHT
 BUTTON_MAX_W = Layout.dimensions.MAIN_BUTTON_MAX_WIDTH
 BUTTON_TARGET_H = Layout.dimensions.MAIN_BUTTON_TARGET_HEIGHT
+SEARCH_ROW_H = Layout.dimensions.SEARCH_ROW_HEIGHT
 
 
-def pin_button_height(btn):
+def pin_button_height(btn, height=None):
     """Pin a main-page button to the target height (operator rules r006/r008)."""
-    btn.set_property('height-request', BUTTON_TARGET_H)
+    btn.set_property('height-request', height or BUTTON_TARGET_H)
     return btn
 
 
@@ -78,8 +81,9 @@ class SearchPage(BasePage):
             "Search file names — try  *report*.odt  or  meeting notes")
         self.query_entry.set_hexpand(True)
         self.query_entry.connect('activate', lambda w: self.start_search())
-        entry_box = Gtk.Box(spacing=8, margin=8)
+        entry_box = Gtk.Box(spacing=8, margin=6)
         entry_box.get_style_context().add_class('search-entry')
+        entry_box.set_property('height-request', SEARCH_ROW_H)
         entry_box.pack_start(get_image(ICONS['search'], BUTTON_ICON_SIZE), False, False, 0)
         entry_box.pack_start(self.query_entry, True, True, 0)
         row.pack_start(entry_box, True, True, 0)
@@ -87,6 +91,7 @@ class SearchPage(BasePage):
         self.mode_buttons = {}
         mode_group = Gtk.Box(spacing=0)
         mode_group.get_style_context().add_class('mode-group')
+        mode_group.set_property('height-request', SEARCH_ROW_H)
         for key, mode, label in (
                 ('case', None, 'Aa'),
                 ('wildcard', MODE_WILDCARD, '*'),
@@ -99,7 +104,7 @@ class SearchPage(BasePage):
             box.pack_start(get_image(ICONS[key], BUTTON_ICON_SIZE), False, False, 0)
             box.pack_start(Gtk.Label(label=label), False, False, 0)
             btn.add(box)
-            pin_button_height(btn)
+            btn.set_property('height-request', SEARCH_ROW_H)
             btn.get_style_context().add_class('mode-toggle')
             btn.connect('toggled', self._on_mode_toggled, key)
             mode_group.pack_start(btn, False, False, 0)
@@ -107,9 +112,9 @@ class SearchPage(BasePage):
         row.pack_start(mode_group, False, False, 0)
 
         self.pause_button = self._icon_button(
-            ICONS['pause'], 'Pause search', self.on_pause_clicked)
+            ICONS['pause'], 'Pause search', self.on_pause_clicked, height=SEARCH_ROW_H)
         self.stop_button = self._icon_button(
-            ICONS['stop'], 'Stop search', lambda w: self.stop_search())
+            ICONS['stop'], 'Stop search', lambda w: self.stop_search(), height=SEARCH_ROW_H)
         search_button = Gtk.Button()
         search_button.set_tooltip_text('Run search')
         b = Gtk.Box(spacing=8)
@@ -117,7 +122,7 @@ class SearchPage(BasePage):
         b.pack_start(Gtk.Label(label='Search'), False, False, 0)
         search_button.add(b)
         search_button.get_style_context().add_class('primary-button')
-        pin_button_height(search_button)
+        search_button.set_property('height-request', SEARCH_ROW_H)
         search_button.connect('clicked', lambda w: self.start_search())
 
         row.pack_start(self.pause_button, False, False, 0)
@@ -176,6 +181,7 @@ class SearchPage(BasePage):
         name_col.set_resizable(True)
         name_col.set_reorderable(True)
         name_col.set_sort_column_id(1)
+        set_text_index(name_col, 1)
         self.view.append_column(name_col)
         for title, model_idx in (('Path', 2), ('Size', 3), ('Type', 4),
                                  ('Modified', 5), ('Mount', 6)):
@@ -185,7 +191,9 @@ class SearchPage(BasePage):
             col.set_resizable(True)
             col.set_reorderable(True)
             col.set_sort_column_id(model_idx)
+            set_text_index(col, model_idx)
             self.view.append_column(col)
+        attach_spreadsheet_behavior(self.view)
 
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -467,8 +475,15 @@ class SearchPage(BasePage):
         name, path, is_dir_text = row[1], row[2], row[4]
         self.pv_name.set_text(name)
         self.pv_type.set_text(is_dir_text)
-        icon_key, _ = file_type_info(name, is_dir_text == 'Folder')
-        self.pv_icon.set_from_pixbuf(get_icon(icon_key, 56))
+        self._selected_path = path
+
+        # real content preview: image/pdf thumbnail, office text, plain text
+        kind, payload = preview_for(path) if is_dir_text != 'Folder' else ('icon', None)
+        if kind == 'image' and payload is not None:
+            self.pv_icon.set_from_pixbuf(payload)
+        else:
+            icon_key, _ = file_type_info(name, is_dir_text == 'Folder')
+            self.pv_icon.set_from_pixbuf(get_icon(icon_key, 56))
 
         for child in self.pv_props.get_children():
             self.pv_props.remove(child)
@@ -485,11 +500,12 @@ class SearchPage(BasePage):
             self.pv_props.attach(label, 0, i, 1, 1)
             self.pv_props.attach(value, 1, i, 1, 1)
         self.pv_props.show_all()
-        self._selected_path = path
 
         buf = self.pv_snippet.get_buffer()
         buf.set_text('')
-        if os.path.splitext(name)[1].lower() in TEXT_EXTS:
+        if kind == 'text' and payload:
+            buf.set_text(payload[:DEFAULTS['snippet_max_bytes']])
+        elif os.path.splitext(name)[1].lower() in TEXT_EXTS:
             try:
                 if os.path.getsize(path) <= DEFAULTS['snippet_file_limit']:
                     with open(path, 'r', errors='replace') as fh:
@@ -547,7 +563,7 @@ class SearchPage(BasePage):
 
     # ------------------------------------------------------------ utils
 
-    def _icon_button(self, icon_key, tooltip, handler):
+    def _icon_button(self, icon_key, tooltip, handler, height=None):
         btn = Gtk.Button()
         btn.set_image(get_image(icon_key, BUTTON_ICON_SIZE))
         btn.set_relief(Gtk.ReliefStyle.NONE)
@@ -555,7 +571,7 @@ class SearchPage(BasePage):
         if handler:
             btn.connect('clicked', handler)
         btn.get_style_context().add_class('flat-icon-button')
-        return pin_button_height(btn)
+        return pin_button_height(btn, height)
 
     def _tool(self, icon_key, tooltip, handler, enabled=True):
         btn = Gtk.Button()

@@ -11,6 +11,7 @@ from gi.repository import Gtk, Gdk, GdkPixbuf, Pango
 
 from pages.page_base import BasePage
 from utils.icon_loader import get_icon, get_image
+from utils.treeview_utils import attach_spreadsheet_behavior, set_text_index
 from config.config_layout import Layout
 from config.config_search import ICONS
 
@@ -74,6 +75,7 @@ class HistoryPage(BasePage):
         mark_renderer = Gtk.CellRendererPixbuf()
         self.mark_col = Gtk.TreeViewColumn('Saved', mark_renderer, pixbuf=0)
         self.mark_col.set_fixed_width(44)
+        set_text_index(self.mark_col, None)
         self.view.append_column(self.mark_col)
         for title, idx in (('Time', 1), ('Query', 2), ('Mode', 3),
                            ('Case', 4), ('Scope', 5), ('Matches', 6)):
@@ -83,7 +85,9 @@ class HistoryPage(BasePage):
             col.set_resizable(True)
             col.set_reorderable(True)
             col.set_sort_column_id(idx)
+            set_text_index(col, idx)
             self.view.append_column(col)
+        attach_spreadsheet_behavior(self.view)
 
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -119,7 +123,8 @@ class HistoryPage(BasePage):
 
     def on_button_press(self, view, event):
         """Single click: row re-runs the search; bookmark column saves it."""
-        if event.button != Gdk.BUTTON_PRIMARY_BUTTON:
+        # GDK3 does not introspect GDK_BUTTON_PRIMARY; primary is button 1
+        if event.button != 1:
             return False
         result = view.get_path_at_pos(int(event.x), int(event.y))
         if result is None:
