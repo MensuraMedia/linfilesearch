@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search Row Sizing Study — linfilesearch</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; color:#eee; padding:28px; }
+  .ic { filter:invert(1); opacity:.85; display:inline-block; vertical-align:middle; }
+  h1 { font-size:20px; margin-bottom:4px; }
+  .sub { color:#999; font-size:13px; margin-bottom:26px; }
+  .panel { background:#2d2d2d; border:1px solid #000; padding:22px 24px; margin-bottom:26px; }
+  .panel h2 { font-size:15px; margin-bottom:2px; }
+  .panel .note { font-size:12px; color:#999; margin-bottom:16px; }
+  .tag { font-size:10px; border:1px solid #1a1a1a; background:#353535; color:#bbb; padding:2px 8px; margin-left:8px; vertical-align:middle; }
+  .tag.win { border-color:#0078D7; color:#9cd0ff; }
+
+  .row { display:flex; gap:8px; align-items:stretch; }
+  .entry { flex:1; display:flex; align-items:center; gap:10px; background:#262626; border:1px solid #1a1a1a; padding:0 12px; min-width:0; }
+  .entry input { flex:1; background:none; border:none; color:#eee; outline:none; min-width:0; }
+  .entry input::placeholder { color:#777; }
+
+  .modes { display:flex; background:#353535; border:1px solid #1a1a1a; }
+  .mode { display:flex; align-items:center; padding:0 10px; color:#bbb; font-size:11px; gap:6px; border-right:1px solid #1a1a1a; }
+  .mode:last-child { border-right:none; }
+  .mode.on { background:#0078D7; color:#fff; }
+
+  .btn { display:flex; align-items:center; padding:0 14px; background:#353535; border:1px solid #1a1a1a; color:#eee; font-size:12px; gap:8px; }
+  .btn.flat { background:transparent; border:none; padding:0 10px; }
+  .btn.primary { background:#0078D7; border-color:#0078D7; color:#fff; font-weight:bold; }
+
+  /* Variant A: original-mockup proportions */
+  .vA .entry input { font-size:15px; padding:10px 0; }
+  .vA .ic { width:16px; height:16px; }
+
+  /* Variant B: compact */
+  .vB .entry input { font-size:13px; padding:7px 0; }
+  .vB .ic { width:14px; height:14px; }
+  .vB .mode { padding:0 8px; font-size:10px; }
+  .vB .btn { padding:0 12px; font-size:11px; }
+
+  /* Current GTK (for contrast) */
+  .vC .entry input { font-size:13px; padding:5px 0; }
+  .vC .ic { width:12px; height:12px; }
+  .vC .mode { padding:0 8px; font-size:10px; }
+  .vC .btn { padding:0 10px; font-size:10px; }
+
+  .dims { margin-top:14px; font-size:11px; color:#8ab4d8; font-variant-numeric:tabular-nums; line-height:1.7; }
+  .dims b { color:#eee; font-weight:normal; }
+</style>
+</head>
+<body>
+<h1>Search row sizing study</h1>
+<div class="sub">Three candidates for the search control row. Controls reference the original A2 mockup for icon size
+(16&nbsp;px) and flush heights: every button stretches to the search field's height — buttons never exceed the field.
+Pause uses the <b>columns</b> icon (two bars ·|·), stop uses the plain <b>stop</b> square, per operator selection.</div>
+
+<div class="panel vA">
+  <h2>Option A — Original-mockup proportions <span class="tag win">recommended</span><span class="tag">38 px field · 16 px icons</span></h2>
+  <div class="note">Exactly the A2 mockup: tall comfortable field, slim flush buttons, 16 px icons throughout.</div>
+  <div class="row">
+    <div class="entry">
+      <img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">
+      <input placeholder="Search file names — try  *report*.odt  or  meeting notes">
+    </div>
+    <div class="modes">
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+      <div class="mode on"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+    </div>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/columns.svg"></button>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/stop.svg"></button>
+    <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+  </div>
+  <div class="dims">field <b>38 px</b> · mode strip <b>38 px flush</b> · pause/stop <b>38 px, borderless</b> · Search <b>38 px</b> · icons <b>16 px</b></div>
+</div>
+
+<div class="panel vB">
+  <h2>Option B — Compact <span class="tag">32 px field · 14 px icons</span></h2>
+  <div class="note">Slightly tighter field; same flush rule, smaller icons.</div>
+  <div class="row">
+    <div class="entry">
+      <img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">
+      <input placeholder="Search file names — try  *report*.odt  or  meeting notes">
+    </div>
+    <div class="modes">
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+      <div class="mode on"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+    </div>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/columns.svg"></button>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/stop.svg"></button>
+    <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+  </div>
+  <div class="dims">field <b>32 px</b> · all controls <b>32 px flush</b> · icons <b>14 px</b></div>
+</div>
+
+<div class="panel vC">
+  <h2>Current GTK app <span class="tag">for contrast — flagged too big</span></h2>
+  <div class="note">What the app renders today (30 px row, 12 px icons). Shown only for comparison.</div>
+  <div class="row">
+    <div class="entry">
+      <img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">
+      <input placeholder="Search file names — try  *report*.odt  or  meeting notes">
+    </div>
+    <div class="modes">
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/text-aa.svg">Aa</div>
+      <div class="mode on"><img class="ic" src="../../resources/icons/regular/asterisk.svg">*</div>
+      <div class="mode"><img class="ic" src="../../resources/icons/regular/brackets-curly.svg">.*</div>
+    </div>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/columns.svg"></button>
+    <button class="btn flat"><img class="ic" src="../../resources/icons/regular/stop.svg"></button>
+    <button class="btn primary"><img class="ic" src="../../resources/icons/regular/magnifying-glass.svg">Search</button>
+  </div>
+  <div class="dims">field <b>~34-36 px</b> (unpinned natural height) · controls <b>30 px</b> · icons <b>12 px</b> — mismatched heights, boxed buttons read heavy</div>
+</div>
+
+</body>
+</html>

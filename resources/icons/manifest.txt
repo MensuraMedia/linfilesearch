@@ -56,3 +56,5 @@ caret-right              disclosure / expand row
 arrow-square-out         open file with default app
 plus-circle              add location to scope
 minus-circle             remove location from scope
+stop                     stop search control (square)
+columns                  pause control (two vertical bars)
