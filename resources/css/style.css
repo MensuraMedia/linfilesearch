@@ -806,11 +806,11 @@ scale slider:hover {
     margin-right: 4px;
 }
 
-/* spreadsheet header cells: subtle neutral border, >=4px padding all sides
-   (operator rule r016; #ccc removed pending header-border mockup pick) */
+/* spreadsheet header cells: V2 soft hairline (operator pick r017;
+   spec docs/header-style-spec.md) */
 .results-tree header button,
 .sheet-tree header button {
-    border: 1px solid #4a4a4a;
+    border: 1px solid #767676;
     padding: 4px 6px;
 }
 
