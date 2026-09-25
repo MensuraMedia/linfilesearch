@@ -51,10 +51,10 @@ class Sidebar(Gtk.Box):
         if os.path.exists(logo_path):
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    logo_path, 96, 96, True)
+                    logo_path, 120, 120, True)
                 mark = Gtk.Image.new_from_pixbuf(pixbuf)
-                mark.set_margin_top(10)
-                mark.set_margin_start(5)   # optical nudge: glyph leans left
+                mark.set_margin_top(6)
+                mark.set_margin_start(6)   # optical nudge: glyph leans left
                 mark.set_halign(Gtk.Align.CENTER)
                 logo_box.pack_start(mark, False, False, 0)
             except Exception as e:

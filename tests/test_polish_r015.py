@@ -14,6 +14,18 @@ from gi.repository import Gtk                              # noqa: E402
 import ui.dashboard_window                                  # noqa: F401  (import order)
 
 
+def _find(container, cls_name):
+    found = []
+
+    def walk(w):
+        if hasattr(w, 'forall'):
+            w.forall(walk)
+        if type(w).__name__ == cls_name:
+            found.append(w)
+    walk(container)
+    return found
+
+
 def _build_window(tmp_path):
     from modules.manager_navigation import NavigationManager
     from modules.manager_mounts import MountManager
@@ -43,8 +55,70 @@ def test_sidebar_logo_compact_with_wordmark(tmp_path):
     walk(window.sidebar)
     assert labels, 'wordmark label missing from sidebar'
     marks = [i for i in images if i.get_pixbuf() is not None
-             and i.get_pixbuf().get_height() == 96]
-    assert marks, 'sidebar mark must render at 96px (V2 enlarged, r020)'
+             and i.get_pixbuf().get_height() == 120]
+    assert marks, 'sidebar mark must render at 120px (r021)'
+
+
+def test_results_column_order(tmp_path):
+    window = _build_window(tmp_path)
+    page = _find(window.content_area, 'SearchPage')[0]
+    titles = [c.get_title() for c in page.view.get_columns()]
+    assert titles == ['Modified', 'Name', 'Path', 'Size', 'Type', 'Mount']
+
+
+def test_results_context_menu(tmp_path):
+    from modules.manager_mounts import MountManager
+    from modules.manager_history import HistoryManager
+    from modules.manager_theme_applicator import ThemeApplicator
+    from utils.manager_theme import ThemeManager
+    from config.config_themes import get_theme
+    from pages.page_search import SearchPage
+    from gi.repository import Gdk
+    import time
+    ThemeApplicator().apply_theme(get_theme('default'))
+    ThemeManager().load_css('resources/css/style.css')
+    page = SearchPage(MountManager(), HistoryManager(config_dir=str(tmp_path / 'c4')))
+    off = Gtk.OffscreenWindow()
+    off.set_default_size(1100, 600)
+    off.add(page)
+    off.show_all()
+    end = time.time() + 0.8
+    while time.time() < end:
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+    png = os.path.abspath('docs/mockups/mockup-a.png')
+    page.store.append([None, 'mockup-a.png', png, '160 KB', 'Image',
+                       '2026-09-25', '/home'])
+
+    # the offscreen Paned rig never maps the bin window, so geometry-based
+    # hit-testing can't resolve rows here; stub it to the first row and test
+    # the handler logic itself (left-click fallthrough + menu construction)
+    page.view.get_path_at_pos = (
+        lambda x, y, _c=page.view.get_column(0):
+        (Gtk.TreePath.new_first(), _c, 0, 0))
+
+    # left click must fall through to normal selection behaviour
+    eb = Gdk.Event.new(Gdk.EventType.BUTTON_PRESS).button
+    eb.button, eb.x, eb.y = 1, 80.0, 10.0
+    assert page.on_results_button_press(page.view, eb) is False
+
+    # right click on a row builds the Open/Folder/Copy/Delete menu
+    menus = []
+
+    def capture_popup(menu, *a, **k):
+        menus.append(menu)
+        return None
+    orig = Gtk.Menu.popup_at_pointer
+    Gtk.Menu.popup_at_pointer = capture_popup
+    try:
+        eb2 = Gdk.Event.new(Gdk.EventType.BUTTON_PRESS).button
+        eb2.button, eb2.x, eb2.y = 3, 80.0, 10.0
+        handled = page.on_results_button_press(page.view, eb2)
+    finally:
+        Gtk.Menu.popup_at_pointer = orig
+    assert handled is True and menus, 'right-click menu did not open'
+    labels = [i.get_label() for i in menus[0].get_children()]
+    assert labels == ['Open', 'Folder', 'Copy', 'Delete']
 
 
 def test_stop_red_while_search_running(tmp_path):

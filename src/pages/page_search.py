@@ -193,7 +193,7 @@ class SearchPage(BasePage):
         name_col.set_reorderable(True)
         name_col.set_sort_column_id(1)
         set_text_index(name_col, 1)
-        self.view.append_column(name_col)
+        text_cols = {}
         for title, model_idx in (('Path', 2), ('Size', 3), ('Type', 4),
                                  ('Modified', 5), ('Mount', 6)):
             renderer = Gtk.CellRendererText()
@@ -203,8 +203,16 @@ class SearchPage(BasePage):
             col.set_reorderable(True)
             col.set_sort_column_id(model_idx)
             set_text_index(col, model_idx)
-            self.view.append_column(col)
+            text_cols[title] = col
+        # default order (operator rule r021): Modified, Name, Path, Size, Type, Mount
+        self.view.append_column(text_cols['Modified'])
+        self.view.append_column(name_col)
+        self.view.append_column(text_cols['Path'])
+        self.view.append_column(text_cols['Size'])
+        self.view.append_column(text_cols['Type'])
+        self.view.append_column(text_cols['Mount'])
         attach_spreadsheet_behavior(self.view)
+        self.view.connect('button-press-event', self.on_results_button_press)
 
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -536,6 +544,51 @@ class SearchPage(BasePage):
                         buf.set_text(fh.read(DEFAULTS['snippet_max_bytes']))
             except OSError:
                 pass
+
+    def on_results_button_press(self, view, event):
+        """Right-click a results row: Open / Folder / Copy / Delete menu.
+
+        Delete asks for confirmation before moving the file to the trash.
+        """
+        if event.button != 3:
+            return False
+        result = view.get_path_at_pos(int(event.x), int(event.y))
+        if result is None:
+            return False
+        path, _, _, _ = result
+        view.get_selection().select_path(path)
+        file_path = getattr(self, '_selected_path', None)
+        if not file_path or not os.path.exists(file_path):
+            return False
+
+        menu = Gtk.Menu()
+        for label, action in (('Open', 'open'), ('Folder', 'folder_open'),
+                              ('Copy', 'copy'), ('Delete', 'delete')):
+            item = Gtk.MenuItem(label=label)
+            item.connect('activate', self.on_context_action, action, file_path)
+            menu.append(item)
+        menu.show_all()
+        menu.popup_at_pointer(event)
+        return True
+
+    def on_context_action(self, item, action, file_path):
+        if action != 'delete':
+            self.on_preview_action(item, action)
+            return
+        name = os.path.basename(file_path)
+        dialog = Gtk.MessageDialog(
+            transient_for=self.get_toplevel(),
+            flags=Gtk.DialogFlags.MODAL,
+            message_type=Gtk.MessageType.QUESTION,
+            text=f"Delete '{name}'?",
+            secondary_text='The file will be moved to the trash.')
+        dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL)
+        dialog.add_button('Confirm', Gtk.ResponseType.OK)
+        dialog.set_default_response(Gtk.ResponseType.CANCEL)
+        response = dialog.run()
+        dialog.destroy()
+        if response == Gtk.ResponseType.OK:
+            self.on_preview_action(item, 'trash')
 
     def on_preview_action(self, widget, key):
         path = getattr(self, '_selected_path', None)
