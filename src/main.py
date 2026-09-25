@@ -13,6 +13,7 @@ from ui.dashboard_window import DashboardWindow
 from modules.manager_navigation import NavigationManager
 from modules.manager_theme_applicator import ThemeApplicator
 from modules.manager_mounts import MountManager
+from modules.manager_history import HistoryManager
 from config.config_themes import get_theme
 from utils.manager_theme import ThemeManager
 
@@ -24,6 +25,7 @@ def main():
     navigation_manager = NavigationManager()
     theme_applicator = ThemeApplicator()
     mount_manager = MountManager()
+    history_manager = HistoryManager()
 
     # Apply default theme immediately for consistent startup
     default_theme = get_theme('default')
@@ -34,7 +36,7 @@ def main():
     ThemeManager().load_css('resources/css/style.css')
 
     # Create and show main window
-    window = DashboardWindow(navigation_manager, mount_manager)
+    window = DashboardWindow(navigation_manager, mount_manager, history_manager)
     window.connect("destroy", Gtk.main_quit)
     window.show_all()
 

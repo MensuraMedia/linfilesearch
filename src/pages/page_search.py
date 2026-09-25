@@ -23,6 +23,13 @@ from config.config_layout import Layout
 BUTTON_ICON_SIZE = Layout.dimensions.MAIN_BUTTON_ICON_SIZE
 BUTTON_MAX_H = Layout.dimensions.MAIN_BUTTON_MAX_HEIGHT
 BUTTON_MAX_W = Layout.dimensions.MAIN_BUTTON_MAX_WIDTH
+BUTTON_TARGET_H = Layout.dimensions.MAIN_BUTTON_TARGET_HEIGHT
+
+
+def pin_button_height(btn):
+    """Pin a main-page button to the target height (operator rules r006/r008)."""
+    btn.set_property('height-request', BUTTON_TARGET_H)
+    return btn
 
 
 def human_size(n):
@@ -37,9 +44,11 @@ def human_size(n):
 class SearchPage(BasePage):
     """File search page (A+ layout: dashboard + fold-out preview)."""
 
-    def __init__(self, mount_manager):
+    def __init__(self, mount_manager, history_manager=None):
         self.mounts = mount_manager
+        self.history = history_manager
         self.engine = None
+        self._active_record = None
         self.mode = DEFAULTS['mode']
         self.case_sensitive = DEFAULTS['case_sensitive']
         self.mount_buttons = {}
@@ -71,7 +80,7 @@ class SearchPage(BasePage):
         self.query_entry.connect('activate', lambda w: self.start_search())
         entry_box = Gtk.Box(spacing=8, margin=8)
         entry_box.get_style_context().add_class('search-entry')
-        entry_box.pack_start(get_image(ICONS['search'], 15), False, False, 0)
+        entry_box.pack_start(get_image(ICONS['search'], BUTTON_ICON_SIZE), False, False, 0)
         entry_box.pack_start(self.query_entry, True, True, 0)
         row.pack_start(entry_box, True, True, 0)
 
@@ -88,6 +97,7 @@ class SearchPage(BasePage):
             box.pack_start(get_image(ICONS[key], BUTTON_ICON_SIZE), False, False, 0)
             box.pack_start(Gtk.Label(label=label), False, False, 0)
             btn.add(box)
+            pin_button_height(btn)
             btn.get_style_context().add_class('mode-toggle')
             btn.connect('toggled', self._on_mode_toggled, key)
             row.pack_start(btn, False, False, 0)
@@ -104,6 +114,7 @@ class SearchPage(BasePage):
         b.pack_start(Gtk.Label(label='Search'), False, False, 0)
         search_button.add(b)
         search_button.get_style_context().add_class('primary-button')
+        pin_button_height(search_button)
         search_button.connect('clicked', lambda w: self.start_search())
 
         row.pack_start(self.pause_button, False, False, 0)
@@ -160,6 +171,7 @@ class SearchPage(BasePage):
         name_col.add_attribute(icon_renderer, 'pixbuf', 0)
         name_col.add_attribute(name_renderer, 'text', 1)
         name_col.set_resizable(True)
+        name_col.set_reorderable(True)
         name_col.set_sort_column_id(1)
         self.view.append_column(name_col)
         for title, model_idx in (('Path', 2), ('Size', 3), ('Type', 4),
@@ -168,6 +180,7 @@ class SearchPage(BasePage):
             renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             col = Gtk.TreeViewColumn(title, renderer, text=model_idx)
             col.set_resizable(True)
+            col.set_reorderable(True)
             col.set_sort_column_id(model_idx)
             self.view.append_column(col)
 
@@ -254,6 +267,7 @@ class SearchPage(BasePage):
             box.pack_start(lbl, False, False, 0)
             btn.add(box)
             btn.set_relief(Gtk.ReliefStyle.NONE)
+            pin_button_height(btn)
             btn.connect('clicked', self.on_preview_action, key)
             actions.pack_start(btn, True, True, 0)
         pane.pack_start(actions, False, False, 0)
@@ -312,6 +326,7 @@ class SearchPage(BasePage):
         box.pack_start(Gtk.Label(label=m.mountpoint if m is not None else label),
                        False, False, 0)
         btn.add(box)
+        pin_button_height(btn)
         btn.connect('toggled', self._on_scope_toggled)
         return btn
 
@@ -345,12 +360,40 @@ class SearchPage(BasePage):
         self.store.clear()
         self.engine = SearchEngine()
         roots = self.selected_roots()
+        scope_kind = 'all'
+        if not self.mount_buttons.get('__all__').get_active():
+            scope_kind = 'paths'
+        if self.history is not None:
+            self._active_record = self.history.add(
+                query=query, mode=self.mode,
+                case_sensitive=self.case_sensitive,
+                scope_kind=scope_kind, scope_paths=roots)
         self.engine.start(roots, matcher,
                           include_hidden=DEFAULTS['include_hidden'],
                           follow_symlinks=DEFAULTS['follow_symlinks'])
         self.status_spinner.start()
         self.status_scan.set_text(f"Scanning {', '.join(roots)} …")
         self._search_state = 'running'
+
+    def apply_criteria(self, record):
+        """Prepopulate every search field from a history/saved record."""
+        self.query_entry.set_text(record.get('query', ''))
+        self.mode = record.get('mode', MODE_SUBSTRING)
+        self.case_sensitive = bool(record.get('case', False))
+        self._sync_mode_buttons()
+        # scope: reselect chips, falling back to All when a mount is gone
+        target = 'all' if record.get('scope_kind') != 'paths' else None
+        if target is None:
+            for path in record.get('scope_paths', []):
+                if path in self.mount_buttons:
+                    target = path
+                    break
+            if target is None:
+                target = 'all'
+        for path, btn in self.mount_buttons.items():
+            btn.set_active(path == target if target != 'all' else path == '__all__')
+        if not any(b.get_active() for b in self.mount_buttons.values()):
+            self.mount_buttons['__all__'].set_active(True)
 
     def on_pause_clicked(self, widget):
         if not self.engine:
@@ -368,9 +411,18 @@ class SearchPage(BasePage):
 
     def stop_search(self):
         if self.engine:
+            stats = self.engine.stats.snapshot()
             self.engine.stop()
+            self._finish_active_record(stats)
         self._search_state = 'idle'
         self.status_spinner.stop()
+
+    def _finish_active_record(self, stats):
+        if self._active_record is not None and self.history is not None:
+            self.history.finish(
+                self._active_record['id'],
+                stats.get('matched', 0), stats.get('elapsed'))
+            self._active_record = None
 
     def _drain_results(self):
         if not self.engine:
@@ -399,6 +451,7 @@ class SearchPage(BasePage):
             self._search_state = 'idle'
             self.status_scan.set_text(
                 f"Done — {stats['matched']:,} matches, {stats['skipped']} skipped.")
+            self._finish_active_record(stats)
         return True
 
     # ---------------------------------------------------------- preview
@@ -499,7 +552,7 @@ class SearchPage(BasePage):
         if handler:
             btn.connect('clicked', handler)
         btn.get_style_context().add_class('flat-icon-button')
-        return btn
+        return pin_button_height(btn)
 
     def _tool(self, icon_key, tooltip, handler, enabled=True):
         btn = Gtk.Button()
@@ -510,4 +563,4 @@ class SearchPage(BasePage):
         if handler:
             btn.connect('clicked', handler)
         btn.get_style_context().add_class('tool-button')
-        return btn
+        return pin_button_height(btn)

@@ -6,3 +6,5 @@ backups/
 backup-log.md
 .v2c/
 .video_agent/
+__pycache__/
+*.pyc

@@ -56,5 +56,11 @@ def test_main_page_buttons_within_sidebar_caps():
         ctx = btn.get_style_context().list_classes()
         if natural_h > MAX_H or natural_w > MAX_W:
             violations.append(
-                f'{ctx} h={natural_h} w={natural_w} (caps {MAX_H}/{MAX_W})')
+                f'{ctx} natural h={natural_h} w={natural_w} (caps {MAX_H}/{MAX_W})')
+        req_h = btn.get_property('height-request')
+        if req_h > MAX_H:
+            violations.append(
+                f'{ctx} height-request {req_h} > cap {MAX_H}')
+        if req_h == Layout.dimensions.MAIN_BUTTON_TARGET_HEIGHT:
+            continue   # pinned buttons are correct by construction
     assert not violations, 'buttons exceeding sidebar caps:\n' + '\n'.join(violations)

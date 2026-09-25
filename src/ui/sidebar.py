@@ -154,6 +154,12 @@ class Sidebar(Gtk.Box):
         
         button.get_style_context().add_class('active')
         self.active_button = button
+
+    def set_active_page(self, page_id):
+        """Highlight the nav button for a page (programmatic navigation)."""
+        button = self.nav_buttons.get(page_id)
+        if button is not None:
+            self.set_active_button(button)
     
     def on_nav_clicked(self, button, page_id):
         """Handle navigation click"""
