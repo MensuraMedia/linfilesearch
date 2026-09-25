@@ -120,10 +120,16 @@ class SearchPage(BasePage):
 
         self.pause_button = self._icon_button(
             ICONS['pause'], 'Pause search', self.on_pause_clicked,
-            height=SEARCH_ROW_H, icon_size=ROW_ICON_SIZE)
+            height=SEARCH_ROW_H - 2, icon_size=ROW_ICON_SIZE)
         self.stop_button = self._icon_button(
             ICONS['stop'], 'Stop search', lambda w: self.stop_search(),
-            height=SEARCH_ROW_H, icon_size=ROW_ICON_SIZE)
+            height=SEARCH_ROW_H - 2, icon_size=ROW_ICON_SIZE)
+        # pause + stop form one connected control (r018)
+        ps_group = Gtk.Box(spacing=0)
+        ps_group.get_style_context().add_class('ps-group')
+        ps_group.set_property('height-request', SEARCH_ROW_H)
+        ps_group.pack_start(self.pause_button, False, False, 0)
+        ps_group.pack_start(self.stop_button, False, False, 0)
         search_button = Gtk.Button()
         search_button.set_tooltip_text('Run search')
         b = Gtk.Box(spacing=8)
@@ -134,8 +140,7 @@ class SearchPage(BasePage):
         search_button.set_property('height-request', SEARCH_ROW_H)
         search_button.connect('clicked', lambda w: self.start_search())
 
-        row.pack_start(self.pause_button, False, False, 0)
-        row.pack_start(self.stop_button, False, False, 0)
+        row.pack_start(ps_group, False, False, 0)
         row.pack_start(search_button, False, False, 0)
         self.pack_start(row, False, False, 0)
         self._sync_mode_buttons()
@@ -154,11 +159,8 @@ class SearchPage(BasePage):
         tools.get_style_context().add_class('tool-group')
         self.filters_button = self._tool(ICONS['filters'], 'Filters (next phase)', None, enabled=False)
         self.advanced_button = self._tool(ICONS['advanced'], 'Advanced options (next phase)', None, enabled=False)
-        self.preview_button = self._tool(
-            ICONS['preview'], 'Preview pane', self.on_toggle_preview)
-        self.preview_button.get_style_context().add_class('active')
         refresh = self._tool(ICONS['refresh'], 'Refresh mounts', lambda w: self.populate_scope_chips())
-        for t in (self.filters_button, self.advanced_button, self.preview_button, refresh):
+        for t in (self.filters_button, self.advanced_button, refresh):
             tools.pack_start(t, False, False, 0)
         row.pack_start(tools, False, False, 0)
         self.pack_start(row, False, False, 0)
@@ -210,7 +212,23 @@ class SearchPage(BasePage):
         left.pack_start(scrolled, True, True, 0)
         paned.pack1(left, True, False)
 
-        # --- preview (right, fold-out) ---
+        # --- preview (right, fold-out with a caret rail toggle) ---
+        right_side = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+
+        # rail: always visible; caret-right when open, caret-left when closed
+        self.preview_rail = Gtk.Button()
+        self.preview_rail.get_style_context().add_class('preview-rail')
+        self.preview_rail.set_relief(Gtk.ReliefStyle.NONE)
+        self.preview_rail.set_tooltip_text('Toggle preview pane')
+        rail_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.rail_icon = Gtk.Image.new_from_pixbuf(
+            get_icon('caret-right', ROW_ICON_SIZE))
+        rail_box.pack_start(self.rail_icon, True, False, 0)
+        self.preview_rail.add(rail_box)
+        self.preview_rail.set_size_request(26, -1)
+        self.preview_rail.connect('clicked', self.on_toggle_preview)
+        right_side.pack_start(self.preview_rail, False, False, 0)
+
         self.preview_revealer = Gtk.Revealer()
         self.preview_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_LEFT)
         self.preview_revealer.set_transition_duration(250)
@@ -219,7 +237,9 @@ class SearchPage(BasePage):
         pane = self.build_preview_pane()
         pane.set_size_request(290, -1)
         self.preview_revealer.add(pane)
-        paned.pack2(self.preview_revealer, False, False)
+        right_side.pack_start(self.preview_revealer, False, False, 0)
+
+        paned.pack2(right_side, False, False)
 
         self.pack_start(paned, True, True, 0)
 
@@ -227,24 +247,10 @@ class SearchPage(BasePage):
         pane = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         pane.get_style_context().add_class('preview-pane')
 
-        head = Gtk.Box(spacing=8, margin=8)
-        head.get_style_context().add_class('preview-head')
-        head.pack_start(get_image(ICONS['preview'], 14), False, False, 0)
-        head.pack_start(Gtk.Label(label='Preview'), False, False, 0)
-        spacer = Gtk.Box()
-        spacer.set_hexpand(True)
-        head.pack_start(spacer, True, True, 0)
-        close_btn = Gtk.Button()
-        close_btn.set_image(get_image(ICONS['clear'], 12))
-        close_btn.set_relief(Gtk.ReliefStyle.NONE)
-        close_btn.set_tooltip_text('Collapse preview')
-        close_btn.connect('clicked', self.on_toggle_preview)
-        head.pack_start(close_btn, False, False, 0)
-        pane.pack_start(head, False, False, 0)
-
         self.pv_icon = Gtk.Image.new_from_pixbuf(
             get_icon('file_text', 56))
         icon_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, margin=16)
+        icon_box.set_margin_top(24)
         icon_box.pack_start(self.pv_icon, False, False, 0)
         self.pv_name = Gtk.Label(label='No file selected')
         self.pv_name.set_line_wrap(True)
@@ -298,7 +304,7 @@ class SearchPage(BasePage):
         bar.get_style_context().add_class('status-bar')
         self.status_spinner = Gtk.Spinner()
         bar.pack_start(self.status_spinner, False, False, 0)
-        self.status_scan = Gtk.Label(label='Ready.')
+        self.status_scan = Gtk.Label(label='')   # idle shows nothing (r018)
         bar.pack_start(self.status_scan, False, False, 0)
         self.status_matches = Gtk.Label(label='')
         bar.pack_start(self.status_matches, False, False, 0)
@@ -553,11 +559,11 @@ class SearchPage(BasePage):
     def on_toggle_preview(self, widget=None):
         self.preview_visible = not self.preview_visible
         self.preview_revealer.set_reveal_child(self.preview_visible)
-        ctx = self.preview_button.get_style_context()
-        if self.preview_visible:
-            ctx.add_class('active')
-        else:
-            ctx.remove_class('active')
+        # rail caret points in the toggle direction: right = fold away,
+        # left = bring back (operator rule r018)
+        self.rail_icon.set_from_pixbuf(get_icon(
+            'caret-right' if self.preview_visible else 'caret-left',
+            ROW_ICON_SIZE))
 
     # ------------------------------------------------------------ modes
 

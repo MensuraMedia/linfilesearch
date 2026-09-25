@@ -38,36 +38,33 @@ class Sidebar(Gtk.Box):
             self.nav_manager.navigate_to("search")
     
     def build_logo_area(self):
-        """Build logo area: compact centered mark + wordmark (r015/r016)"""
+        """Build logo area: mark upper-center, wordmark near the bottom (r018)"""
 
-        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         logo_box.set_size_request(
             Layout.dimensions.LOGO_AREA_WIDTH,
             Layout.dimensions.LOGO_AREA_HEIGHT
         )
         logo_box.get_style_context().add_class('logo-area')
 
-        # inner group centers as one unit inside the 150x150 area
-        group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        group.set_valign(Gtk.Align.CENTER)
-        group.set_halign(Gtk.Align.CENTER)
-
         logo_path = self.get_logo_path()
         if os.path.exists(logo_path):
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     logo_path, 56, 56, True)
-                group.pack_start(Gtk.Image.new_from_pixbuf(pixbuf),
-                                 False, False, 0)
+                mark = Gtk.Image.new_from_pixbuf(pixbuf)
+                mark.set_margin_top(20)
+                mark.set_halign(Gtk.Align.CENTER)
+                logo_box.pack_start(mark, False, False, 0)
             except Exception as e:
-                print(f"Could not load logo: {e}")   # wordmark still shows below
+                print(f"Could not load logo: {e}")
 
+        # wordmark anchored near the bottom, centered under the mark
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
         wordmark.set_xalign(0.5)
-        group.pack_start(wordmark, False, False, 0)
+        logo_box.pack_end(wordmark, False, False, 8)
 
-        logo_box.pack_start(group, True, True, 0)
         self.pack_start(logo_box, False, False, 0)
     
     def get_logo_path(self):

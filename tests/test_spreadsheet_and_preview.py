@@ -62,8 +62,10 @@ def test_search_row_uniform_height(tmp_path):
     for btn in page.mode_buttons.values():
         # strip border (1px top + bottom) is part of the row height
         assert btn.get_property('height-request') == h - 2
-    assert page.pause_button.get_property('height-request') == h
-    assert page.stop_button.get_property('height-request') == h
+    # pause+stop form one connected group; inner buttons at h-2 (r018)
+    assert page.pause_button.get_property('height-request') == h - 2
+    assert page.stop_button.get_property('height-request') == h - 2
+    assert page.pause_button.get_parent().get_property('height-request') == h
     # primary Search button: first Button in the row after stop
     row = page.query_entry.get_parent().get_parent()
     search_btn = [w for w in row.get_children()

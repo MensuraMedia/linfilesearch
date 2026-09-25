@@ -807,11 +807,18 @@ scale slider:hover {
 }
 
 /* spreadsheet header cells: V2 soft hairline (operator pick r017;
-   spec docs/header-style-spec.md) */
+   spec docs/header-style-spec.md). Shared edges draw ONCE: each cell has
+   top/left/bottom only; the last cell closes the right edge (r018). */
 .results-tree header button,
 .sheet-tree header button {
     border: 1px solid #767676;
+    border-right-width: 0;
     padding: 4px 6px;
+}
+
+.results-tree header button:last-child,
+.sheet-tree header button:last-child {
+    border-right-width: 1px;
 }
 
 /* logo wordmark below the 56px mark (r015) */
@@ -832,4 +839,27 @@ scale slider:hover {
 .sheet-tree row:selected,
 .sheet-tree row:selected:hover {
     background-color: #0078D7;
+}
+
+/* pause+stop connected group (r018) */
+.ps-group {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+}
+
+.ps-group .flat-icon-button {
+    border: none;
+    border-right: 1px solid #1a1a1a;
+    background-color: transparent;
+}
+
+.ps-group .flat-icon-button:last-child {
+    border-right: none;
+}
+
+/* preview rail toggle (r018) */
+.preview-rail {
+    background-color: #353535;
+    border: 1px solid #1a1a1a;
+    padding: 4px 2px;
 }
