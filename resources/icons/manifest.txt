@@ -59,3 +59,4 @@ minus-circle             remove location from scope
 stop                     stop search control (square)
 columns                  pause control (two vertical bars)
 caret-left               preview rail toggle (collapse direction)
+list-magnifying-glass    sidebar brand mark (operator pick r019)

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brand Mark Study — list-magnifying-glass</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Ubuntu, Cantarell, sans-serif; }
+  body { background:#1a1a1a; color:#eee; padding:28px; }
+  h1 { font-size:20px; margin-bottom:4px; }
+  .sub { color:#999; font-size:13px; margin-bottom:26px; }
+  .row { display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { background:#2d2d2d; border:1px solid #000; padding:16px; }
+  .panel h2 { font-size:13px; margin-bottom:2px; }
+  .panel .note { font-size:11px; color:#999; margin-bottom:10px; }
+  .tag { font-size:10px; border:1px solid #1a1a1a; background:#353535; color:#bbb; padding:2px 8px; margin-left:6px; vertical-align:middle; }
+  .tag.win { border-color:#0078D7; color:#9cd0ff; }
+
+  /* each study cell reproduces the 150x150 sidebar logo area on #353535 */
+  .logo-area { width:150px; height:150px; background:#353535; border-right:1px solid #1a1a1a;
+               display:flex; flex-direction:column; align-items:center; }
+  .mark { filter:invert(27%) sepia(96%) saturate(1400%) hue-rotate(197deg) brightness(96%); }
+  .cap { font-size:10px; letter-spacing:1.5px; color:#bbbbbb; }
+
+  /* V1: 56px regular weight, mark upper-center, caption near bottom */
+  .v1 .mark { width:56px; height:56px; margin-top:20px; }
+  .v1 .cap { margin-top:auto; margin-bottom:8px; }
+
+  /* V2: 72px large regular, caption anchored bottom */
+  .v2 .mark { width:72px; height:72px; margin-top:14px; }
+  .v2 .cap { margin-top:auto; margin-bottom:8px; }
+
+  /* V3: 72px fill weight (solid), caption bottom */
+  .v3 .mark { width:72px; height:72px; margin-top:14px; }
+  .v3 .cap { margin-top:auto; margin-bottom:8px; }
+
+  /* V4: 64px regular, optically nudged right (glyph leans left) */
+  .v4 .mark { width:64px; height:64px; margin-top:18px; margin-left:6px; }
+  .v4 .cap { margin-top:auto; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<h1>Brand mark study — list-magnifying-glass</h1>
+<div class="sub">Four treatments of the new mark inside the real 150×150 sidebar logo area (mark upper-center,
+caption anchored near the bottom, clear background). The glyph pairs a magnifier with list lines — a better
+fit for a file&nbsp;search tool than the plain magnifier. Pick one and it replaces logo.png.</div>
+
+<div class="row">
+  <div class="panel">
+    <h2>V1 — 56px regular <span class="tag">current size, new glyph</span></h2>
+    <div class="note">Same geometry as today; only the symbol changes.</div>
+    <div class="logo-area v1">
+      <img class="mark" src="../../resources/icons/regular/list-magnifying-glass.svg">
+      <div class="cap">LINFILESEARCH</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>V2 — 72px regular <span class="tag">large thumbnail</span></h2>
+    <div class="note">Bigger presence while keeping clear space around the glyph.</div>
+    <div class="logo-area v2">
+      <img class="mark" src="../../resources/icons/regular/list-magnifying-glass.svg">
+      <div class="cap">LINFILESEARCH</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>V3 — 72px fill <span class="tag">solid weight</span></h2>
+    <div class="note">Fill-weight glyph reads stronger at distance; same footprint as V2.</div>
+    <div class="logo-area v3">
+      <img class="mark" src="../../resources/icons/fill/list-magnifying-glass.svg">
+      <div class="cap">LINFILESEARCH</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>V4 — 64px regular, optical nudge <span class="tag">centering correction</span></h2>
+    <div class="note">64px with a 6px rightward nudge — compensates the glyph's left lean so it looks centered.</div>
+    <div class="logo-area v4">
+      <img class="mark" src="../../resources/icons/regular/list-magnifying-glass.svg">
+      <div class="cap">LINFILESEARCH</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
