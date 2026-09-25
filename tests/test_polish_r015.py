@@ -43,8 +43,8 @@ def test_sidebar_logo_compact_with_wordmark(tmp_path):
     walk(window.sidebar)
     assert labels, 'wordmark label missing from sidebar'
     marks = [i for i in images if i.get_pixbuf() is not None
-             and i.get_pixbuf().get_height() == 56]
-    assert marks, 'sidebar mark must render at 56px, not the old 145px fill'
+             and i.get_pixbuf().get_height() == 96]
+    assert marks, 'sidebar mark must render at 96px (V2 enlarged, r020)'
 
 
 def test_stop_red_while_search_running(tmp_path):
