@@ -81,3 +81,25 @@ def get_image(name, size=16, tint=None, weight='regular'):
     if pixbuf is None:
         return Gtk.Image()
     return Gtk.Image.new_from_pixbuf(pixbuf)
+
+
+APP_ICON_DIR = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'resources', 'images', 'app-icon')
+
+
+def get_app_icon_pixbufs():
+    """Pixbufs of the app icon (all generated sizes, smallest first)."""
+    sizes = []
+    if not os.path.isdir(APP_ICON_DIR):
+        return sizes
+    for fname in sorted(os.listdir(APP_ICON_DIR)):
+        if not fname.endswith('.png'):
+            continue
+        try:
+            size = int(fname[:-4])
+        except ValueError:
+            continue
+        path = os.path.join(APP_ICON_DIR, fname)
+        pb = GdkPixbuf.Pixbuf.new_from_file_at_size(path, size, size)
+        sizes.append((size, pb))
+    return [pb for _, pb in sorted(sizes)]

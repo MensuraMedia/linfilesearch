@@ -85,6 +85,8 @@ class SearchPage(BasePage):
         row.pack_start(entry_box, True, True, 0)
 
         self.mode_buttons = {}
+        mode_group = Gtk.Box(spacing=0)
+        mode_group.get_style_context().add_class('mode-group')
         for key, mode, label in (
                 ('case', None, 'Aa'),
                 ('wildcard', MODE_WILDCARD, '*'),
@@ -100,8 +102,9 @@ class SearchPage(BasePage):
             pin_button_height(btn)
             btn.get_style_context().add_class('mode-toggle')
             btn.connect('toggled', self._on_mode_toggled, key)
-            row.pack_start(btn, False, False, 0)
+            mode_group.pack_start(btn, False, False, 0)
             self.mode_buttons[key] = btn
+        row.pack_start(mode_group, False, False, 0)
 
         self.pause_button = self._icon_button(
             ICONS['pause'], 'Pause search', self.on_pause_clicked)

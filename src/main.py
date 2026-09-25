@@ -6,7 +6,7 @@ Main application entry point - applies default theme on startup
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 import sys
 
 from ui.dashboard_window import DashboardWindow
@@ -14,12 +14,16 @@ from modules.manager_navigation import NavigationManager
 from modules.manager_theme_applicator import ThemeApplicator
 from modules.manager_mounts import MountManager
 from modules.manager_history import HistoryManager
+from modules.manager_tray import TrayManager
 from config.config_themes import get_theme
 from utils.manager_theme import ThemeManager
 
 
 def main():
     """Main application entry point"""
+
+    # WM_CLASS: groups the window with the .desktop entry (StartupWMClass)
+    GLib.set_prgname('linfilesearch')
 
     # Initialize managers
     navigation_manager = NavigationManager()
@@ -37,6 +41,15 @@ def main():
 
     # Create and show main window
     window = DashboardWindow(navigation_manager, mount_manager, history_manager)
+
+    # system tray icon; while active, closing the window hides it to tray
+    tray = TrayManager(window)
+    window.tray = tray
+    if tray.active:
+        def on_delete(widget, event):
+            widget.hide()
+            return True           # swallow the destroy
+        window.connect('delete-event', on_delete)
     window.connect("destroy", Gtk.main_quit)
     window.show_all()
 

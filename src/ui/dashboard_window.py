@@ -10,6 +10,7 @@ from gi.repository import Gtk
 from ui.sidebar import Sidebar
 from ui.content_area import ContentArea
 from config.config_layout import Layout
+from utils.icon_loader import get_app_icon_pixbufs
 
 
 class DashboardWindow(Gtk.Window):
@@ -21,6 +22,11 @@ class DashboardWindow(Gtk.Window):
         super().__init__(title="linfilesearch")
 
         self.nav_manager = navigation_manager
+
+        # taskbar / ALT+TAB icon
+        icons = get_app_icon_pixbufs()
+        if icons:
+            self.set_default_icon_list(icons)
 
         self.set_default_size(
             Layout.dimensions.WINDOW_DEFAULT_WIDTH,

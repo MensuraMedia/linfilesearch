@@ -581,13 +581,24 @@ scale slider:hover {
     font-size: 12pt;
 }
 
-.mode-toggle {
+.mode-group {
     background-color: #353535;
     border: 1px solid #1a1a1a;
     border-radius: 0;
-    padding: 2px 8px;
+}
+
+.mode-toggle {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    border-right: 1px solid #1a1a1a;
+    padding: 2px 9px;
     min-height: 20px;
     font-size: 8pt;
+}
+
+.mode-toggle:last-child {
+    border-right: none;
 }
 
 .mode-toggle:checked {
@@ -595,11 +606,15 @@ scale slider:hover {
 }
 
 .flat-icon-button {
-    background-color: #353535;
-    border: 1px solid #1a1a1a;
+    background-color: transparent;
+    border: none;
     border-radius: 0;
     padding: 2px 8px;
     min-height: 20px;
+}
+
+.flat-icon-button:hover {
+    background-color: #404040;
 }
 
 .primary-button {
@@ -617,7 +632,7 @@ scale slider:hover {
     background-color: #353535;
     border: 1px solid #1a1a1a;
     border-radius: 0;
-    padding: 1px 7px;
+    padding: 2px 9px;
     min-height: 18px;
     font-size: 8pt;
 }
@@ -771,4 +786,18 @@ scale slider:hover {
 
 .flat-icon-button label {
     font-size: 8pt;
+}
+
+.mode-group .mode-toggle:checked {
+    background-color: #0078D7;
+}
+
+.preview-head button {
+    padding: 1px 2px;
+    min-height: 18px;
+}
+
+.preview-actions {
+    margin-left: 4px;
+    margin-right: 4px;
 }
