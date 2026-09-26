@@ -22,6 +22,7 @@ if [ "$uninstall" -eq 1 ]; then
   find "$ICON_DIR" -name "$APP_NAME.png" -delete 2>/dev/null || true
   command -v update-desktop-database >/dev/null && update-desktop-database "$APP_DIR" || true
   echo "uninstalled: launcher, .desktop, icons"
+  echo "kept: ~/.config/linfilesearch (search history and saved searches)"
   exit 0
 fi
 
@@ -38,14 +39,15 @@ echo "icons: installed to $ICON_DIR (13 sizes)"
 
 # launcher wrapper
 mkdir -p "$BIN_DIR"
+rev="$(git -C "$PROJ" rev-parse --short HEAD 2>/dev/null || echo unversioned)"
 cat > "$BIN" <<EOF
 #!/usr/bin/env bash
-# linfilesearch launcher (project install.sh)
+# linfilesearch launcher (project install.sh, rev $rev)
 cd "$PROJ" || exit 1
 exec python3 src/main.py "\$@"
 EOF
 chmod +x "$BIN"
-echo "launcher: $BIN"
+echo "launcher: $BIN (rev $rev)"
 
 # .desktop entry
 mkdir -p "$APP_DIR"
