@@ -54,15 +54,13 @@ def _find_style(container, css_class):
     return found
 
 
-def test_sidebar_filled_mark_square_area(tmp_path):
+def test_sidebar_filled_mark_tight_lockup(tmp_path):
     window = _build_window(tmp_path)
-    # r026: the primary mark fills the sidebar — 132px glyph centered in a
-    # square 150x150 logo area, caption at the bottom, nav directly beneath
+    # r026/r027: filled 132px mark, caption packed DIRECTLY under it, nav
+    # buttons immediately after — no dead gap, nothing anchored low
     first = window.sidebar.get_children()[0]
     assert first.get_style_context().has_class('logo-area'), \
-        'sidebar must open with the square logo area'
-    w, h = first.get_size_request()
-    assert w == h == 150, 'logo area must be a perfect 150px square'
+        'sidebar must open with the logo area'
 
     images, labels = [], []
 
@@ -80,6 +78,18 @@ def test_sidebar_filled_mark_square_area(tmp_path):
              and i.get_pixbuf().get_height() == Layout.dimensions.LOGO_MARK_SIZE]
     assert marks, 'primary mark must render at the filled size (r026)'
     assert marks[0].get_halign() == Gtk.Align.CENTER
+
+    window.show_all()
+    while Gtk.events_pending():          # realize allocations
+        Gtk.main_iteration_do(False)
+    cap = labels[0].get_allocation()
+    mark_bottom = marks[0].get_allocation().y + marks[0].get_allocation().height
+    assert 0 <= cap.y - mark_bottom <= 6, \
+        'caption must sit directly under the mark (r027)'
+    nav = window.sidebar.get_children()[1]
+    nav_top = nav.get_allocation().y
+    assert 0 <= nav_top - (cap.y + cap.height) <= 8, \
+        'nav buttons must follow immediately after the caption (r027)'
 
 
 def test_results_column_order(tmp_path):

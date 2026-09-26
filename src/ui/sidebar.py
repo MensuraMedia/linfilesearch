@@ -38,15 +38,12 @@ class Sidebar(Gtk.Box):
             self.nav_manager.navigate_to("search")
     
     def build_logo_area(self):
-        """Filled brand mark (operator rule r026): the 132px
-        list-magnifying-glass fills the 150px square logo area, centered;
-        caption anchored at the bottom; nav buttons sit directly beneath."""
+        """Filled brand mark (r026/r027): 132px list-magnifying-glass
+        filling the top of the sidebar, centered; the caption sits directly
+        under the mark (no dead gap) and the nav buttons follow right after
+        — the whole lockup is height-natural, nothing anchored low."""
 
         logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        logo_box.set_size_request(
-            Layout.dimensions.LOGO_AREA_WIDTH,
-            Layout.dimensions.LOGO_AREA_HEIGHT
-        )
         logo_box.get_style_context().add_class('logo-area')
 
         logo_path = self.get_logo_path()
@@ -66,7 +63,9 @@ class Sidebar(Gtk.Box):
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
         wordmark.set_xalign(0.5)
-        logo_box.pack_end(wordmark, False, False, 6)
+        wordmark.set_margin_top(2)        # tight under the mark (r027)
+        wordmark.set_margin_bottom(4)
+        logo_box.pack_start(wordmark, False, False, 0)
 
         self.pack_start(logo_box, False, False, 0)
     
