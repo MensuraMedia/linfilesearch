@@ -827,21 +827,24 @@ scale slider:hover {
     color: #bbbbbb;
 }
 
-/* hover / selected rows (r016, hardened r025): the selected highlight must
-   survive the cursor — background-image:none kills theme gradients that
-   otherwise bleed through on :hover */
-.results-tree row:hover,
-.sheet-tree row:hover {
+/* row highlight (r034). GTK3 paints TreeView ROW backgrounds with the VIEW's
+   own style context carrying the per-row state flags — selectors on a
+   'row' node never match (the r016/r025 rules were dead; the hover-gray and
+   the highlight loss on hover both came from the system theme's
+   treeview:hover). States therefore go on the view node; selected rules
+   come last so the blue survives the cursor (operator rule). */
+.results-tree:hover,
+.sheet-tree:hover {
     background-color: #373737;
     background-image: none;
 }
 
-.results-tree row:selected,
-.results-tree row:selected:hover,
-.results-tree row:hover:selected,
-.sheet-tree row:selected,
-.sheet-tree row:selected:hover,
-.sheet-tree row:hover:selected {
+.results-tree:selected,
+.results-tree:selected:hover,
+.results-tree:hover:selected,
+.sheet-tree:selected,
+.sheet-tree:selected:hover,
+.sheet-tree:hover:selected {
     background-color: #0078D7;
     background-image: none;
 }

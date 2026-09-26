@@ -236,6 +236,8 @@ class SearchPage(BasePage):
                 RESULTS_MIN_WIDTHS.get(col.get_title(), 60))
         attach_spreadsheet_behavior(self.view)
         self.view.connect('button-press-event', self.on_results_button_press)
+        # double-click opens the file with the default app (operator rule r034)
+        self.view.connect('row-activated', self.on_row_activated)
 
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -658,6 +660,17 @@ class SearchPage(BasePage):
         menu.show_all()
         menu.popup_at_pointer(event)
         return True
+
+    def on_row_activated(self, view, path, column):
+        """Double-click (or Enter) opens the file with the default app."""
+        row = view.get_model()[path]
+        file_path = row[2]
+        if file_path and os.path.exists(file_path):
+            try:
+                Gtk.show_uri_on_window(
+                    self.get_toplevel(), 'file://' + file_path, 0)
+            except GLib.Error:
+                pass
 
     def on_context_action(self, item, action, file_path):
         if action != 'delete':
