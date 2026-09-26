@@ -38,40 +38,37 @@ class Sidebar(Gtk.Box):
             self.nav_manager.navigate_to("search")
     
     def build_logo_area(self):
-        """Compact header (operator rule r025): small square logo cell beside
-        the wordmark — replaces the old 150px centered logo block, so the
-        nav buttons start right under the header."""
+        """Filled brand mark (operator rule r026): the 132px
+        list-magnifying-glass fills the 150px square logo area, centered;
+        caption anchored at the bottom; nav buttons sit directly beneath."""
 
-        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        header.get_style_context().add_class('sidebar-header')
-
-        cell = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        cell.get_style_context().add_class('logo-cell')
-        cell.set_valign(Gtk.Align.CENTER)
-        # perfect square: equal explicit width/height request
-        cell.set_size_request(Layout.dimensions.LOGO_CELL_SIZE,
-                              Layout.dimensions.LOGO_CELL_SIZE)
+        logo_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        logo_box.set_size_request(
+            Layout.dimensions.LOGO_AREA_WIDTH,
+            Layout.dimensions.LOGO_AREA_HEIGHT
+        )
+        logo_box.get_style_context().add_class('logo-area')
 
         logo_path = self.get_logo_path()
         if os.path.exists(logo_path):
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    logo_path, Layout.dimensions.LOGO_CELL_ICON,
-                    Layout.dimensions.LOGO_CELL_ICON, True)
+                    logo_path, Layout.dimensions.LOGO_MARK_SIZE,
+                    Layout.dimensions.LOGO_MARK_SIZE, True)
                 mark = Gtk.Image.new_from_pixbuf(pixbuf)
-                cell.pack_start(mark, True, False, 0)
+                mark.set_margin_top(0)
+                mark.set_margin_start(6)   # optical nudge: glyph leans left
+                mark.set_halign(Gtk.Align.CENTER)
+                logo_box.pack_start(mark, False, False, 0)
             except Exception as e:
                 print(f"Could not load logo: {e}")
 
-        header.pack_start(cell, False, False, 0)
-
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
-        wordmark.set_xalign(0.0)
-        wordmark.set_valign(Gtk.Align.CENTER)
-        header.pack_start(wordmark, False, False, 0)
+        wordmark.set_xalign(0.5)
+        logo_box.pack_end(wordmark, False, False, 6)
 
-        self.pack_start(header, False, False, 0)
+        self.pack_start(logo_box, False, False, 0)
     
     def get_logo_path(self):
         """Get path to logo image"""

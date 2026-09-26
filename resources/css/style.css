@@ -45,20 +45,12 @@ window {
     min-width: 150px;
 }
 
-/* Compact sidebar header (r025): small square logo cell + wordmark beside
-   it; nav buttons start directly under the header */
-.sidebar-header {
+/* Filled brand mark (r026): 132px mark centered in the square 150x150
+   logo area, caption anchored at the bottom */
+.logo-area {
     background-color: #3a3a3a;
     border-bottom: 1px solid #1a1a1a;
-    padding: 8px 10px;
-}
-
-.logo-cell {
-    background-color: #2d2d2d;
-    border: 1px solid #767676;
-    border-radius: 0;
-    min-width: 34px;
-    min-height: 34px;
+    padding: 0;
 }
 
 .logo-text {

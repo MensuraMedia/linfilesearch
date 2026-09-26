@@ -32,10 +32,9 @@ class Dimensions:
     SEARCH_ROW_HEIGHT = 38
     SEARCH_ROW_ICON_SIZE = 16
 
-    # Compact sidebar header (operator rule r025): small square logo cell
-    # beside the wordmark; replaces the old 150x150 centered logo block
-    LOGO_CELL_SIZE = 34
-    LOGO_CELL_ICON = 20
+    # Filled sidebar brand mark (operator rule r026): 132px mark centered in
+    # the square 150x150 logo area, caption anchored at the bottom
+    LOGO_MARK_SIZE = 132
     
     # Content area
     CONTENT_MARGIN = 40

@@ -54,18 +54,15 @@ def _find_style(container, css_class):
     return found
 
 
-def test_sidebar_compact_header_square_cell(tmp_path):
+def test_sidebar_filled_mark_square_area(tmp_path):
     window = _build_window(tmp_path)
-    # r025: small square logo cell beside the wordmark; header is the first
-    # sidebar child and the nav buttons sit directly under it
+    # r026: the primary mark fills the sidebar — 132px glyph centered in a
+    # square 150x150 logo area, caption at the bottom, nav directly beneath
     first = window.sidebar.get_children()[0]
-    assert first.get_style_context().has_class('sidebar-header'), \
-        'sidebar must open with the compact header row'
-
-    cells = _find_style(window.sidebar, 'logo-cell')
-    assert len(cells) == 1, 'exactly one logo cell expected'
-    w, h = cells[0].get_size_request()
-    assert w == h and w > 0, 'logo cell must be a perfect square'
+    assert first.get_style_context().has_class('logo-area'), \
+        'sidebar must open with the square logo area'
+    w, h = first.get_size_request()
+    assert w == h == 150, 'logo area must be a perfect 150px square'
 
     images, labels = [], []
 
@@ -80,8 +77,9 @@ def test_sidebar_compact_header_square_cell(tmp_path):
     assert labels, 'wordmark label missing from sidebar'
     from config.config_layout import Layout
     marks = [i for i in images if i.get_pixbuf() is not None
-             and i.get_pixbuf().get_height() == Layout.dimensions.LOGO_CELL_ICON]
-    assert marks, 'sidebar mark must render at the compact cell size (r025)'
+             and i.get_pixbuf().get_height() == Layout.dimensions.LOGO_MARK_SIZE]
+    assert marks, 'primary mark must render at the filled size (r026)'
+    assert marks[0].get_halign() == Gtk.Align.CENTER
 
 
 def test_results_column_order(tmp_path):
