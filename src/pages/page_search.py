@@ -247,11 +247,13 @@ class SearchPage(BasePage):
         #     spreadsheet header row — replaces the r018 full-height rail) ---
         right_side = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
 
-        # narrow separator strip; only its top cell is a button, aligned
-        # with the header band: caret-right when open, caret-left closed
+        # narrow transparent strip; only its top cell is a button, sized to
+        # a header cell and aligned with the header band: caret-right when
+        # open, caret-left closed (r028; +2px to header-cell size in r030)
+        toggle_size = Layout.dimensions.PREVIEW_TOGGLE_SIZE
         strip = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         strip.get_style_context().add_class('preview-strip')
-        strip.set_size_request(26, -1)
+        strip.set_size_request(toggle_size, -1)
         self.preview_toggle = Gtk.Button()
         self.preview_toggle.get_style_context().add_class('preview-toggle')
         self.preview_toggle.set_relief(Gtk.ReliefStyle.NONE)
@@ -259,7 +261,7 @@ class SearchPage(BasePage):
         self.toggle_icon = Gtk.Image.new_from_pixbuf(
             get_icon('caret-right', ROW_ICON_SIZE))
         self.preview_toggle.add(self.toggle_icon)
-        self.preview_toggle.set_size_request(26, 26)
+        self.preview_toggle.set_size_request(toggle_size, toggle_size)
         self.preview_toggle.connect('clicked', self.on_toggle_preview)
         strip.pack_start(self.preview_toggle, False, False, 0)
         right_side.pack_start(strip, False, False, 0)

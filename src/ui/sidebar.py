@@ -52,6 +52,13 @@ class Sidebar(Gtk.Box):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     logo_path, Layout.dimensions.LOGO_MARK_SIZE,
                     Layout.dimensions.LOGO_MARK_SIZE, True)
+                # trim the SVG's transparent bottom padding so the caption
+                # can sit 7px higher without a negative margin (r030)
+                trim = Layout.dimensions.LOGO_MARK_BOTTOM_TRIM
+                if 0 < trim < pixbuf.get_height():
+                    pixbuf = GdkPixbuf.Pixbuf.new_subpixbuf(
+                        pixbuf, 0, 0, pixbuf.get_width(),
+                        pixbuf.get_height() - trim)
                 mark = Gtk.Image.new_from_pixbuf(pixbuf)
                 mark.set_margin_top(0)
                 mark.set_margin_start(6)   # optical nudge: glyph leans left
@@ -63,8 +70,8 @@ class Sidebar(Gtk.Box):
         wordmark = Gtk.Label(label="LINFILESEARCH")
         wordmark.get_style_context().add_class('logo-cap')
         wordmark.set_xalign(0.5)
-        wordmark.set_margin_top(2)        # tight under the mark (r027)
-        wordmark.set_margin_bottom(4)
+        wordmark.set_margin_top(0)        # flush against the trimmed mark
+        wordmark.set_margin_bottom(7)     # net: buttons rise 4px (r030)
         logo_box.pack_start(wordmark, False, False, 0)
 
         self.pack_start(logo_box, False, False, 0)

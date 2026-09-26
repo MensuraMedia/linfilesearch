@@ -863,10 +863,11 @@ scale slider:hover {
 }
 
 /* preview separator strip + small square toggle beside the header row
-   (r028; replaces the r018 full-height rail) */
+   (r028; r030: toggle grown to header-cell size, strip transparent with
+   no border — the vertical bar below the button is gone) */
 .preview-strip {
-    background-color: #2d2d2d;
-    border-left: 1px solid #1a1a1a;
+    background-color: transparent;
+    border: none;
 }
 
 .preview-toggle {

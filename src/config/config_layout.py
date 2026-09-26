@@ -35,6 +35,12 @@ class Dimensions:
     # Filled sidebar brand mark (operator rule r026): 132px mark centered in
     # the square 150x150 logo area, caption anchored at the bottom
     LOGO_MARK_SIZE = 132
+    # transparent SVG bottom padding trimmed so the caption rides higher
+    # (r030: -5px, +7px more in r031 — caption now flush with the glyph ink)
+    LOGO_MARK_BOTTOM_TRIM = 12
+
+    # Square preview toggle (r028, sized to a header cell in r030)
+    PREVIEW_TOGGLE_SIZE = 28
     
     # Content area
     CONTENT_MARGIN = 40

@@ -74,9 +74,11 @@ def test_sidebar_filled_mark_tight_lockup(tmp_path):
     walk(window.sidebar)
     assert labels, 'wordmark label missing from sidebar'
     from config.config_layout import Layout
+    expected_h = Layout.dimensions.LOGO_MARK_SIZE - \
+        Layout.dimensions.LOGO_MARK_BOTTOM_TRIM
     marks = [i for i in images if i.get_pixbuf() is not None
-             and i.get_pixbuf().get_height() == Layout.dimensions.LOGO_MARK_SIZE]
-    assert marks, 'primary mark must render at the filled size (r026)'
+             and i.get_pixbuf().get_height() == expected_h]
+    assert marks, 'primary mark must render trimmed to the r031 height'
     assert marks[0].get_halign() == Gtk.Align.CENTER
 
     window.show_all()
@@ -207,7 +209,7 @@ def test_preview_toggle_square_beside_header(tmp_path):
         while Gtk.events_pending():
             Gtk.main_iteration_do(False)
     w, h = page.preview_toggle.get_size_request()
-    assert w == h == 26, 'preview toggle must be a small square'
+    assert w == h == 28, 'preview toggle must match header-cell size (r030)'
     strip = page.preview_toggle.get_parent()
     assert len(strip.get_children()) == 1, \
         'separator strip must not be a full-height button'
