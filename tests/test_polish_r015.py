@@ -184,3 +184,40 @@ def test_stop_red_while_search_running(tmp_path):
     page.stop_search()
     assert page._stop_red is False
     assert page._search_state == 'idle'
+
+
+def test_preview_toggle_square_beside_header(tmp_path):
+    # r028: the full-height rail is gone; a 26x26 square caret toggle sits
+    # at the top of a thin separator strip, aligned with the header band
+    from modules.manager_mounts import MountManager
+    from modules.manager_history import HistoryManager
+    from modules.manager_theme_applicator import ThemeApplicator
+    from utils.manager_theme import ThemeManager
+    from config.config_themes import get_theme
+    from pages.page_search import SearchPage
+    ThemeApplicator().apply_theme(get_theme('default'))
+    ThemeManager().load_css('resources/css/style.css')
+    page = SearchPage(MountManager(), HistoryManager(config_dir=str(tmp_path / 'c5')))
+    off = Gtk.OffscreenWindow()
+    off.set_default_size(1100, 600)
+    off.add(page)
+    off.show_all()
+    end = time.time() + 0.8
+    while time.time() < end:
+        while Gtk.events_pending():
+            Gtk.main_iteration_do(False)
+    w, h = page.preview_toggle.get_size_request()
+    assert w == h == 26, 'preview toggle must be a small square'
+    strip = page.preview_toggle.get_parent()
+    assert len(strip.get_children()) == 1, \
+        'separator strip must not be a full-height button'
+    ba = page.preview_toggle.get_allocation()
+    sa = strip.get_allocation()
+    assert ba.y == sa.y, 'toggle must align with the header band'
+    assert ba.height <= 30, 'toggle must stay small, not a rail'
+    # clicking still folds/unfolds the preview pane
+    assert page.preview_revealer.get_reveal_child() is True
+    page.preview_toggle.clicked()
+    assert page.preview_revealer.get_reveal_child() is False
+    page.preview_toggle.clicked()
+    assert page.preview_revealer.get_reveal_child() is True

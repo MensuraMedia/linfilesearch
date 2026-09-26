@@ -862,9 +862,22 @@ scale slider:hover {
     border-right: none;
 }
 
-/* preview rail toggle (r018) */
-.preview-rail {
+/* preview separator strip + small square toggle beside the header row
+   (r028; replaces the r018 full-height rail) */
+.preview-strip {
+    background-color: #2d2d2d;
+    border-left: 1px solid #1a1a1a;
+}
+
+.preview-toggle {
     background-color: #353535;
-    border: 1px solid #1a1a1a;
-    padding: 4px 2px;
+    border: 1px solid #767676;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+.preview-toggle:hover {
+    background-color: #404040;
 }

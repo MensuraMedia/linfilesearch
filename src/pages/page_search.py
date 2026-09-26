@@ -243,22 +243,26 @@ class SearchPage(BasePage):
         left.pack_start(scrolled, True, True, 0)
         paned.pack1(left, True, False)
 
-        # --- preview (right, fold-out with a caret rail toggle) ---
+        # --- preview (right, fold-out; small square toggle beside the
+        #     spreadsheet header row — replaces the r018 full-height rail) ---
         right_side = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
 
-        # rail: always visible; caret-right when open, caret-left when closed
-        self.preview_rail = Gtk.Button()
-        self.preview_rail.get_style_context().add_class('preview-rail')
-        self.preview_rail.set_relief(Gtk.ReliefStyle.NONE)
-        self.preview_rail.set_tooltip_text('Toggle preview pane')
-        rail_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.rail_icon = Gtk.Image.new_from_pixbuf(
+        # narrow separator strip; only its top cell is a button, aligned
+        # with the header band: caret-right when open, caret-left closed
+        strip = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        strip.get_style_context().add_class('preview-strip')
+        strip.set_size_request(26, -1)
+        self.preview_toggle = Gtk.Button()
+        self.preview_toggle.get_style_context().add_class('preview-toggle')
+        self.preview_toggle.set_relief(Gtk.ReliefStyle.NONE)
+        self.preview_toggle.set_tooltip_text('Toggle preview pane')
+        self.toggle_icon = Gtk.Image.new_from_pixbuf(
             get_icon('caret-right', ROW_ICON_SIZE))
-        rail_box.pack_start(self.rail_icon, True, False, 0)
-        self.preview_rail.add(rail_box)
-        self.preview_rail.set_size_request(26, -1)
-        self.preview_rail.connect('clicked', self.on_toggle_preview)
-        right_side.pack_start(self.preview_rail, False, False, 0)
+        self.preview_toggle.add(self.toggle_icon)
+        self.preview_toggle.set_size_request(26, 26)
+        self.preview_toggle.connect('clicked', self.on_toggle_preview)
+        strip.pack_start(self.preview_toggle, False, False, 0)
+        right_side.pack_start(strip, False, False, 0)
 
         self.preview_revealer = Gtk.Revealer()
         self.preview_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_LEFT)
@@ -694,9 +698,9 @@ class SearchPage(BasePage):
     def on_toggle_preview(self, widget=None):
         self.preview_visible = not self.preview_visible
         self.preview_revealer.set_reveal_child(self.preview_visible)
-        # rail caret points in the toggle direction: right = fold away,
+        # caret points in the toggle direction: right = fold away,
         # left = bring back (operator rule r018)
-        self.rail_icon.set_from_pixbuf(get_icon(
+        self.toggle_icon.set_from_pixbuf(get_icon(
             'caret-right' if self.preview_visible else 'caret-left',
             ROW_ICON_SIZE))
 
